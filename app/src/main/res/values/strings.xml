@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Easycalcio</string>
-    <string name="permission_textview">Grant the required permissions to use the app</string>
-    <string name="permission_button">GRANT PERMISSIONS</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="match_title">Title</string>
+    <string name="match_date">Date</string>
+    <string name="match_location">Location</string>
 </resources>
