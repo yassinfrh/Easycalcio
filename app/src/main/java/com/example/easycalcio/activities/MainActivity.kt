@@ -12,11 +12,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //listener for the floatingActionButton
         val floatingActionButton : FloatingActionButton = findViewById(R.id.floatingActionButton)
         floatingActionButton.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(p0: View?) {
-                //TODO: create intent to NewMatchActivity
-                val intent = Intent(this, NewMatchActivity::class.java)
+            override fun onClick(view: View?) {
+                val intent = Intent(view!!.context, NewMatchActivity::class.java)
+                view.context.startActivity(intent)
+                finish()
             }
         })
     }
