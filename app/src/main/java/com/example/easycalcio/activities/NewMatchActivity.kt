@@ -9,11 +9,11 @@ import android.view.View
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.easycalcio.R
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.time.Duration.Companion.milliseconds
 
 
 class NewMatchActivity : AppCompatActivity() {
@@ -32,7 +32,7 @@ class NewMatchActivity : AppCompatActivity() {
                 myCalendar.set(Calendar.YEAR, year)
                 myCalendar.set(Calendar.MONTH, month)
                 myCalendar.set(Calendar.DAY_OF_MONTH, day)
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
                 editTextDate.setText(dateFormat.format(myCalendar.time))
                 editTextTime.setText("")
             }
@@ -48,14 +48,20 @@ class NewMatchActivity : AppCompatActivity() {
             myCalendar.set(Calendar.HOUR_OF_DAY, hour)
             myCalendar.set(Calendar.MINUTE, minute)
             val timeFormat = SimpleDateFormat("HH:mm", Locale.US)
-            editTextTime.setText(timeFormat.format(myCalendar.time))
+            if(myCalendar.timeInMillis < System.currentTimeMillis()){
+                Toast.makeText(view!!.context, "Select a future time!", Toast.LENGTH_SHORT).show()
+            }
+            else{
+                editTextTime.setText(timeFormat.format(myCalendar.time))
+            }
         }
         editTextTime.setOnClickListener(object : View.OnClickListener{
             override fun onClick(view: View?) {
                 if(editTextDate.text.isNotEmpty()){
-                    val timePicker = TimePickerDialog(view!!.context, time, myCalendar[Calendar.HOUR_OF_DAY], myCalendar[Calendar.MINUTE], true)
-                    //TODO: alert user if they're clicking on time without setting date first
-                    //TODO: set minTime in timePicker
+                    TimePickerDialog(view!!.context, time, myCalendar[Calendar.HOUR_OF_DAY], myCalendar[Calendar.MINUTE], true).show()
+                }
+                else{
+                    Toast.makeText(view!!.context, "Set the date first!", Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -75,5 +81,8 @@ class NewMatchActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
             }
         })
+
+        //TODO: location suggestions
+        //TODO: save button
     }
 }
