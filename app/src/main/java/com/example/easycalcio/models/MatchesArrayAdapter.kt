@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.example.easycalcio.R
 import java.util.*
 
-class MyArrayAdapter(context: Context, val resource: Int, val matches: List<Match>) : ArrayAdapter<Match>(context, resource, matches){
+class MatchesArrayAdapter(context: Context, val resource: Int, val matches: List<Match>) : ArrayAdapter<Match>(context, resource, matches){
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val match : Match = matches[position]
         var view : View? = convertView
@@ -26,15 +26,9 @@ class MyArrayAdapter(context: Context, val resource: Int, val matches: List<Matc
         val matchDate: TextView = view.findViewById(R.id.matchDate)
         matchDate.text = match.formattedDate
 
-        val matchLocation: TextView = view.findViewById(R.id.matchLocation)
-        matchLocation.text = getAddress(match)
+        val matchLocation: TextView = view.findViewById(R.id.matchCity)
+        matchLocation.text = match.city
 
         return view
-    }
-
-    private fun getAddress(match: Match) : String{
-        val geocoder = Geocoder(this.context, Locale.getDefault())
-        val addresses : List<Address> = geocoder.getFromLocation(match.location.latitude, match.location.longitude, 1)
-        return "${addresses[0].getAddressLine(0)}, ${addresses[0].locality}"
     }
 }

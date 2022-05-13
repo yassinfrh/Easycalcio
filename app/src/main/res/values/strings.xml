@@ -1,12 +1,18 @@
 <resources>
     <string name="app_name">Easycalcio</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    
+
     <string name="match_title">Title</string>
     <string name="match_date">Date</string>
-    <string name="match_location">Location</string>
+    <string name="match_address">Address</string>
+    <string name="match_city">City</string>
     <string name="match_time">Time</string>
     <string name="match_players_number">N° players:</string>
     <string name="players_number_text_view">10</string>
+    <string name="match_friends">Friends:</string>
+
+    <string name="friend_name">Name</string>
+    <string name="friend_username">Username</string>
+    <string name="friend_role">Role</string>
+
+    <string name="empty_match_list">You have no future matches. Create one by clicking the button below.</string>
 </resources>

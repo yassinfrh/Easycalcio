@@ -7,33 +7,32 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.easycalcio.R
 import com.example.easycalcio.models.Match
+import com.example.easycalcio.models.User
 
 /**
  * A simple [Fragment] subclass.
- * Use the [MatchListFragment.newInstance] factory method to
+ * Use the [MatchFriendsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MatchListFragment : Fragment() {
+class MatchFriendsFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var userId: String? = null
-    private var matches : List<Match>? = null
+    private var friends : List<User>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             userId = it.getString("userId")
         }
-
-        //TODO: retrieve the list of matches of the user from now on
+        //TODO: retrieve the list of friends
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        //TODO: Inflate the layout for this fragment if the list is not null
-        //TODO: if the list in null display "create new match" fragment
-        return inflater.inflate(R.layout.fragment_empty_match_list, container, false)
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_match_friends, container, false)
     }
 
     companion object {
@@ -43,11 +42,11 @@ class MatchListFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment MatchListFragment.
+         * @return A new instance of fragment MatchFriendsFragment.
          */
         @JvmStatic
         fun newInstance(userId: String) =
-            MatchListFragment().apply {
+            MatchFriendsFragment().apply {
                 arguments = Bundle().apply {
                     putString("userId", userId)
                 }

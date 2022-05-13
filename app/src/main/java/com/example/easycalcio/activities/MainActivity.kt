@@ -12,8 +12,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //TODO: display the matches
+
         //listener for the floatingActionButton
-        val floatingActionButton : FloatingActionButton = findViewById(R.id.floatingActionButton)
+        val floatingActionButton : FloatingActionButton = findViewById(R.id.createMatchButton)
         floatingActionButton.setOnClickListener(object: View.OnClickListener{
             override fun onClick(view: View?) {
                 val intent = Intent(view!!.context, NewMatchActivity::class.java)
