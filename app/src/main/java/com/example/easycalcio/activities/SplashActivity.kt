@@ -9,13 +9,13 @@ class SplashActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*val tmp = Intent(this, RegistrationActivity::class.java)
+        val tmp = Intent(this, ProfileActivity::class.java)
         this.startActivity(tmp)
         finish()
-        return*/
+        return
 
         // Check if user is logged or not
-        val firebaseWrapper : FirebaseWrapper = FirebaseWrapper(this)
+        val firebaseWrapper = FirebaseWrapper(this)
         if (!firebaseWrapper.isAuthenticated()) {
             // Redirect to login/register activity
             val intent = Intent(this, LoginActivity::class.java)

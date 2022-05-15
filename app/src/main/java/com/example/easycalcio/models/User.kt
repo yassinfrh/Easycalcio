@@ -1,5 +1,6 @@
 package com.example.easycalcio.models
 
+import android.media.Image
 import java.util.*
 
 
@@ -10,7 +11,8 @@ class User(val id : String,
            val city : String,
            val role : String,
            val friends : List<User>,
-           val matches : List<Match>) {
+           val matches : List<Match>,
+           val profileImage : Image) {
 
     fun getAge(): Int {
         val dob = Calendar.getInstance()
