@@ -135,6 +135,6 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:layout_gravity="bottom|end"
-        android:layout_margin="10dp"
+        android:layout_margin="20sp"
         app:srcCompat="@android:drawable/ic_menu_save" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

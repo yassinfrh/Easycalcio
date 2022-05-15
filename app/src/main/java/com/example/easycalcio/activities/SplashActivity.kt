@@ -9,10 +9,10 @@ class SplashActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val tmp = Intent(this, RegistrationActivity::class.java)
+        /*val tmp = Intent(this, RegistrationActivity::class.java)
         this.startActivity(tmp)
         finish()
-        return
+        return*/
 
         // Check if user is logged or not
         val firebaseWrapper : FirebaseWrapper = FirebaseWrapper(this)
@@ -24,6 +24,7 @@ class SplashActivity:AppCompatActivity() {
             return
         }
         else{
+            //TODO: check if user completed the registration
             val intent = Intent(this, MainActivity::class.java)
             this.startActivity(intent)
             finish()
