@@ -9,7 +9,7 @@ class SplashActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val tmp = Intent(this, ProfileActivity::class.java)
+        val tmp = Intent(this, FriendProfileActivity::class.java)
         this.startActivity(tmp)
         finish()
         return

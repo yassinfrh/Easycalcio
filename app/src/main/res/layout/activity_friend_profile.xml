@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.FriendProfileActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/friendProfileImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@mipmap/user_foreground" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/friendProfileAddRemoveFriendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/friend_profile_add_friend"
+                android:layout_marginStart="20sp"
+                android:layout_marginEnd="20sp"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/friendProfileChatButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/friend_profile_chat"
+                android:layout_marginStart="20sp"
+                android:layout_marginEnd="20sp"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="30sp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/friend_username"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/friend_name"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/registration_surname"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Age"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/registration_city"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/registration_role"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/friendProfileUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="pippo69"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:id="@+id/friendProfileName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pippo"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:id="@+id/friendProfileSurname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Baudo"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:id="@+id/friendProfileAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="22"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:id="@+id/friendProfileCity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rebibbia"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+
+                <TextView
+                    android:id="@+id/friendProfileRole"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Striker"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_margin="10sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

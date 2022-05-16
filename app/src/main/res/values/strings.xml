@@ -30,6 +30,7 @@
     <string name="registration_birthday">Birthday</string>
     <string name="registration_city">City</string>
     <string name="registration_role">Role</string>
+
     <string-array name="roles">
         <item>Select a role..</item>
         <item>Goalkeeper</item>
@@ -39,4 +40,9 @@
         <item>Wing</item>
         <item>Striker</item>
     </string-array>
+
+    <!-- Profile strings -->
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="friend_profile_add_friend">Add friend</string>
+    <string name="friend_profile_chat">Chat</string>
 </resources>

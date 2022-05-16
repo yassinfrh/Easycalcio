@@ -20,6 +20,17 @@
             android:cursorVisible="false"
             android:focusable="false"
             android:focusableInTouchMode="false"/>
+
+
+        <Button
+            android:id="@+id/profileChangePictureButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/change_profile_picture"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+
         <EditText
             android:id="@+id/profileUsername"
             android:layout_width="match_parent"
@@ -108,4 +119,13 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/profileEditSaveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/ic_menu_edit"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20sp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
