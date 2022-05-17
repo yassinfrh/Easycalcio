@@ -45,4 +45,5 @@
     <string name="change_profile_picture">Change profile picture</string>
     <string name="friend_profile_add_friend">Add friend</string>
     <string name="friend_profile_chat">Chat</string>
+    <string name="write_your_message">Write your message..</string>
 </resources>

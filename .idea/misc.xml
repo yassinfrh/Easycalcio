@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout-v26/activity_new_match.xml" value="0.3625" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_chat.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_friend_profile.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_main.xml" value="0.264" />
@@ -17,6 +18,7 @@
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_list.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_friend_layout.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_layout.xml" value="0.3625" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/message_layout.xml" value="0.3614583333333333" />
       </map>
     </option>
   </component>
