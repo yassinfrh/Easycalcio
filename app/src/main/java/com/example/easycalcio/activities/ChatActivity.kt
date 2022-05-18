@@ -15,7 +15,7 @@ class ChatActivity : AppCompatActivity() {
         title = "Chat"
 
         //TODO: display the chat
-        
+
         val sendButton : FloatingActionButton = findViewById(R.id.chatSendButton)
         sendButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(view: View?) {
