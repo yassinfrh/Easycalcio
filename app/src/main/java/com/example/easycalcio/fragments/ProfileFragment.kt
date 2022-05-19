@@ -1,39 +1,46 @@
-package com.example.easycalcio.activities
+package com.example.easycalcio.fragments
 
 import android.app.DatePickerDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.Fragment
 import com.example.easycalcio.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileFragment : Fragment() {
 
     private var edit = false
     private val myCalendar : Calendar = Calendar.getInstance()
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_profile)
-        title = "Profile"
+        return inflater.inflate(R.layout.fragment_profile, container, false)
+    }
 
+    override fun onViewCreated(fragView: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(fragView, savedInstanceState)
         //TODO: set fields
 
-        val profileChangePictureButton : Button = findViewById(R.id.profileChangePictureButton)
-        val profileUsername : EditText = findViewById(R.id.profileUsername)
-        val profileName : EditText = findViewById(R.id.profileName)
-        val profileSurname : EditText = findViewById(R.id.profileSurname)
-        val profileBirthday : EditText = findViewById(R.id.profileBirthday)
-        val profileCity : EditText = findViewById(R.id.profileCity)
+        val profileChangePictureButton : Button = requireView().findViewById(R.id.profileChangePictureButton)
+        val profileUsername : EditText = requireView().findViewById(R.id.profileUsername)
+        val profileName : EditText = requireView().findViewById(R.id.profileName)
+        val profileSurname : EditText = requireView().findViewById(R.id.profileSurname)
+        val profileBirthday : EditText = requireView().findViewById(R.id.profileBirthday)
+        val profileCity : EditText = requireView().findViewById(R.id.profileCity)
 
         val views = arrayOf(profileUsername, profileName, profileSurname, profileBirthday, profileCity)
 
-        val roleSpinner : Spinner = findViewById(R.id.profileRoleSpinner)
-        val adapter : ArrayAdapter<CharSequence> = ArrayAdapter.createFromResource(this, R.array.roles, android.R.layout.simple_spinner_item)
+        val roleSpinner : Spinner = requireView().findViewById(R.id.profileRoleSpinner)
+        val adapter : ArrayAdapter<CharSequence> = ArrayAdapter.createFromResource(fragView.context, R.array.roles, android.R.layout.simple_spinner_item)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = adapter
         roleSpinner.isEnabled = false
@@ -59,7 +66,7 @@ class ProfileActivity : AppCompatActivity() {
 
         //TODO: edit profile picture
 
-        val profileButton : FloatingActionButton = findViewById(R.id.profileEditSaveButton)
+        val profileButton : FloatingActionButton = requireView().findViewById(R.id.profileEditSaveButton)
         profileButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(view: View?) {
 
@@ -115,4 +122,5 @@ class ProfileActivity : AppCompatActivity() {
 
         })
     }
+
 }
