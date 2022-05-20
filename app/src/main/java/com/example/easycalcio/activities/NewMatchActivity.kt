@@ -84,7 +84,7 @@ class NewMatchActivity : AppCompatActivity() {
             }
         })
 
-        //TODO: friends list
+        //TODO: display friends list
 
         val saveButton : FloatingActionButton = findViewById(R.id.newMatchSaveButton)
         saveButton.setOnClickListener(object : View.OnClickListener{
