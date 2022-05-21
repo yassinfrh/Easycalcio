@@ -22,7 +22,7 @@ class UsersArrayAdapter {
             friendName.text = "${user.name} ${user.surname}"
 
             val friendUsername: TextView = view.findViewById(R.id.friendUsername)
-            friendUsername.text = user.id
+            friendUsername.text = user.username
 
             val friendRole: TextView = view.findViewById(R.id.friendRole)
             friendRole.text = user.role

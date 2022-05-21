@@ -3,31 +3,43 @@ package com.example.easycalcio.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.easycalcio.models.FirebaseWrapper
+import com.example.easycalcio.R
+import com.example.easycalcio.models.FirebaseAuthWrapper
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class SplashActivity:AppCompatActivity() {
+class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_splash)
 
-        val tmp = Intent(this, MainActivity::class.java)
+        /*val tmp = Intent(this, MainActivity::class.java)
         this.startActivity(tmp)
         finish()
-        return
+        return*/
 
         // Check if user is logged or not
-        val firebaseWrapper = FirebaseWrapper(this)
-        if (!firebaseWrapper.isAuthenticated()) {
+        val firebaseAuthWrapper = FirebaseAuthWrapper(this)
+        if (!firebaseAuthWrapper.isAuthenticated()) {
             // Redirect to login/register activity
             val intent = Intent(this, LoginActivity::class.java)
             this.startActivity(intent)
             finish()
             return
-        }
-        else{
-            //TODO: check if user completed the registration
-            val intent = Intent(this, MainActivity::class.java)
-            this.startActivity(intent)
-            finish()
+        } else {
+            val thiz = this
+            GlobalScope.launch {
+                val completed = FirebaseAuthWrapper(thiz).isCompleted()
+                if (completed) {
+                    val intent = Intent(thiz, MainActivity::class.java)
+                    thiz.startActivity(intent)
+                    finish()
+                } else {
+                    val intent = Intent(thiz, RegistrationActivity::class.java)
+                    thiz.startActivity(intent)
+                    finish()
+                }
+            }
         }
     }
 }

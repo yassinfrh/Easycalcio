@@ -24,7 +24,6 @@ class FriendsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //TODO: display friends list
-        //TODO: if list is empty display empty list fragment
 
         val searchButton: FloatingActionButton =
             requireView().findViewById(R.id.friendsSearchButton)

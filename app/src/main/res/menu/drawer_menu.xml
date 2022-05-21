@@ -16,6 +16,14 @@
             android:id="@+id/nav_friends"
             android:icon="@drawable/ic_friends"
             android:title="Friends" />
+        <item
+            android:id="@+id/nav_friendRequests"
+            android:icon="@drawable/ic_friends_request"
+            android:title="Friend requests" />
+        <item
+            android:id="@+id/nav_matchRequests"
+            android:icon="@drawable/ic_match_requests"
+            android:title="Match requests" />
     </group>
 
     <item

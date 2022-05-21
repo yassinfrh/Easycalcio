@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.easycalcio.R
 import com.example.easycalcio.activities.LoginActivity
-import com.example.easycalcio.models.FirebaseWrapper
+import com.example.easycalcio.models.FirebaseAuthWrapper
 
 abstract class LogFragment(val label: String, val buttonLabel: String) : Fragment() {
 
@@ -70,8 +70,8 @@ abstract class LogFragment(val label: String, val buttonLabel: String) : Fragmen
 // TODO: Remove hardcoded strings and put them in the file res/values/strings and retrieve them with the R.string.<string_id>
 class LogInFragment : LogFragment("Switch to SignUp","LOGIN") {
     override fun action(email: String, password: String) {
-        val firebaseWrapper = FirebaseWrapper(this.requireContext())
-        firebaseWrapper.signIn(email, password)
+        val firebaseAuthWrapper = FirebaseAuthWrapper(this.requireContext())
+        firebaseAuthWrapper.signIn(email, password)
     }
 
     /*override fun onCreateView(
@@ -85,8 +85,8 @@ class LogInFragment : LogFragment("Switch to SignUp","LOGIN") {
 
 class SignUpFragment : LogFragment("Switch to LogIn", "SIGNUP") {
     override fun action(email: String, password: String) {
-        val firebaseWrapper = FirebaseWrapper(this.requireContext())
-        firebaseWrapper.signUp(email, password)
+        val firebaseAuthWrapper = FirebaseAuthWrapper(this.requireContext())
+        firebaseAuthWrapper.signUp(email, password)
     }
 
     /*override fun onCreateView(

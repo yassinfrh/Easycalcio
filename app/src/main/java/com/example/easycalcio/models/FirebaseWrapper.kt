@@ -8,36 +8,79 @@ import com.example.easycalcio.activities.RegistrationActivity
 import com.example.easycalcio.activities.SplashActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-class FirebaseWrapper(private val context: Context) {
-    private val TAG : String = FirebaseWrapper::class.simpleName.toString()
+class FirebaseAuthWrapper(private val context: Context) {
+    private val TAG: String = FirebaseAuthWrapper::class.simpleName.toString()
     private var auth: FirebaseAuth = Firebase.auth
-    private var database = Firebase.database("https://easycalcio-aba73-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
-    fun isAuthenticated() : Boolean {
+    fun isAuthenticated(): Boolean {
         return auth.currentUser != null
     }
 
-    //TODO: check if user has completed registration
+    fun getUid(): String? {
+        return auth.currentUser?.uid
+    }
+
+    fun isCompleted(): Boolean {
+        val lock = ReentrantLock()
+        val condition = lock.newCondition()
+        var isCompleted = false
+
+        GlobalScope.launch {
+            FirebaseDbWrapper(context).readDbData(object :
+                FirebaseDbWrapper.Companion.FirebaseReadCallback {
+                override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                    Log.d("onDataChangeCallback", "invoked")
+                    isCompleted = !snapshot.child("notCompletedUsers").hasChild(getUid()!!)
+                    lock.withLock {
+                        condition.signal()
+                    }
+                }
+
+                override fun onCancelledCallback(error: DatabaseError) {
+                    Log.d("onCancelledCallback", "invoked")
+                }
+
+            })
+        }
+
+        lock.withLock {
+            condition.await()
+        }
+
+        return isCompleted
+    }
 
     fun signUp(email: String, password: String) {
-        this.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "createUserWithEmail:success")
 
                 //add not completely registered to database
-                val newUser = RegisteredUser(email, false)
-                database.child("completedUsers").push().setValue(newUser)
+                val firebaseDbWrapper = FirebaseDbWrapper(context)
+                firebaseDbWrapper.writeNotCompletedUser()
 
                 val intent = Intent(this.context, RegistrationActivity::class.java)
                 context.startActivity(intent)
             } else {
                 // If sign in fails, display a message to the user.
                 Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                Toast.makeText(context, "Sign-up failed. Error message: ${task.exception!!.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    "Sign-up failed. Error message: ${task.exception!!.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -60,4 +103,41 @@ class FirebaseWrapper(private val context: Context) {
 
 }
 
-class RegisteredUser(val email: String, val completed : Boolean)
+class FirebaseDbWrapper(private val context: Context) {
+
+    val db =
+        Firebase.database("https://easycalcio-aba73-default-rtdb.europe-west1.firebasedatabase.app/").reference
+
+    private val uid = FirebaseAuthWrapper(context).getUid()
+
+    fun writeNotCompletedUser() {
+        db.child("notCompletedUsers").child(uid!!).setValue(true)
+    }
+
+    fun writeUser(user: User) {
+        db.child("users").child(uid!!).setValue(user)
+    }
+
+    fun readDbData(callback: FirebaseReadCallback) {
+        db.addValueEventListener(FirebaseReadListener(callback))
+    }
+
+    companion object {
+
+        class FirebaseReadListener(val callback: FirebaseReadCallback) : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                callback.onDataChangeCallback(snapshot)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback.onCancelledCallback(error)
+            }
+        }
+
+        interface FirebaseReadCallback {
+            fun onDataChangeCallback(snapshot: DataSnapshot);
+            fun onCancelledCallback(error: DatabaseError);
+        }
+    }
+
+}

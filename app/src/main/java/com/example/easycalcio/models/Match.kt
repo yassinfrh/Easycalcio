@@ -6,13 +6,22 @@ import android.location.Location
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Match (val id : Long, val title : String, val userId : Long, val date: Date, val address : String, val city : String, val playersNumber: Int, val players : List<User>){
+class Match(
+    val id: Long,
+    val title: String,
+    val userId: Long,
+    val date: Date,
+    val address: String,
+    val city: String,
+    val playersNumber: Int,
+    val players: MutableList<User>
+) {
 
     private val formatter = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
 
 
-    val formattedDate : String?
-    get() : String?{
-        return formatter.format(this.date)
-    }
+    val formattedDate: String?
+        get() : String? {
+            return formatter.format(this.date)
+        }
 }
