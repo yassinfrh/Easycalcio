@@ -1,19 +1,40 @@
 package com.example.easycalcio.models
 
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 
 
-class User(
-    val username: String,
-    val name: String,
-    val surname: String,
-    val birthday: Date,
-    val city: String,
-    val role: String,
-    val friends: MutableList<User>,
-    val matches: MutableList<Match>
-) {
+class User() {
+    var username: String = "*"
+    var name: String = "*"
+    var surname: String = "*"
+    var birthday: Date = Date()
+    var city: String = "*"
+    var role: String = "*"
+    var friends: MutableList<String> = mutableListOf()
+    var matches: MutableList<Long> = mutableListOf()
+
+
+    constructor(
+        username: String,
+        name: String,
+        surname: String,
+        birthday: Date,
+        city: String,
+        role: String,
+        friends: MutableList<String>,
+        matches: MutableList<Long>
+    ) : this() {
+        this.username = username
+        this.name = name
+        this.surname = surname
+        this.birthday = birthday
+        this.city = city
+        this.role = role
+        this.friends = friends
+        this.matches = matches
+    }
 
     fun getAge(): Int {
         val dob = Calendar.getInstance()
@@ -29,5 +50,13 @@ class User(
 
         return age
     }
+
+    private val formatter = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+
+
+    val formattedDate: String?
+        get() : String? {
+            return formatter.format(this.birthday)
+        }
 
 }

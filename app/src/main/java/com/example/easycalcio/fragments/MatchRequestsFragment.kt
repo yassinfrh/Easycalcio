@@ -7,20 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.easycalcio.R
 
-class FriendRequestsFragment : Fragment() {
+class MatchRequestsFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_friend_requests, container, false)
+        return inflater.inflate(R.layout.fragment_match_requests, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //TODO: display friend requests
+        //TODO: display match requests
 
     }
-
 }

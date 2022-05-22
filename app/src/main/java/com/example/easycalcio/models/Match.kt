@@ -9,12 +9,12 @@ import java.util.*
 class Match(
     val id: Long,
     val title: String,
-    val userId: Long,
+    val username: String,
     val date: Date,
     val address: String,
     val city: String,
     val playersNumber: Int,
-    val players: MutableList<User>
+    val players: MutableList<String>
 ) {
 
     private val formatter = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)

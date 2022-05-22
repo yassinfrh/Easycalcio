@@ -11,12 +11,13 @@ import android.widget.TextView
 import com.example.easycalcio.R
 import java.util.*
 
-class MatchesArrayAdapter(context: Context, val resource: Int, val matches: List<Match>) : ArrayAdapter<Match>(context, resource, matches){
+class MatchesArrayAdapter(context: Context, val resource: Int, val matches: List<Match>) :
+    ArrayAdapter<Match>(context, resource, matches) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val match : Match = matches[position]
-        var view : View? = convertView
+        val match: Match = matches[position]
+        var view: View? = convertView
 
-        if(view == null){
+        if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.match_layout, parent, false)
         }
 

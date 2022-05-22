@@ -101,6 +101,75 @@ class FirebaseAuthWrapper(private val context: Context) {
             }
     }
 
+    fun signOut(){
+        auth.signOut()
+        val intent = Intent(context, SplashActivity::class.java)
+        context.startActivity(intent)
+    }
+
+}
+
+fun alreadyUsedUsername(context: Context, username : String) : Boolean{
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var used = false
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                Log.d("onDataChangeCallback", "invoked")
+                for(child in snapshot.child("users").children){
+                    val user : User = child.getValue(User::class.java)!!
+                    if(user.username == username){
+                        used = true
+                    }
+                }
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+                Log.d("onCancelledCallback", "invoked")
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+    return used
+}
+
+fun getUser(context : Context) : User{
+    val uid = FirebaseAuthWrapper(context).getUid()
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var user : User? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                Log.d("onDataChangeCallback", "invoked")
+                user = snapshot.child("users").child(uid!!).getValue(User::class.java)
+
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+                Log.d("onCancelledCallback", "invoked")
+            }
+
+        })
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    return user!!
 }
 
 class FirebaseDbWrapper(private val context: Context) {

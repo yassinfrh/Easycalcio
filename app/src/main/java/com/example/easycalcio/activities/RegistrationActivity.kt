@@ -14,9 +14,11 @@ import com.example.easycalcio.R
 import com.example.easycalcio.models.FirebaseAuthWrapper
 import com.example.easycalcio.models.FirebaseDbWrapper
 import com.example.easycalcio.models.User
+import com.example.easycalcio.models.alreadyUsedUsername
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -62,6 +64,34 @@ class RegistrationActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = adapter
 
+        var err = false
+
+        val usernameEditText : EditText = findViewById(R.id.registrationUsername)
+        usernameEditText.onFocusChangeListener = object : View.OnFocusChangeListener {
+            override fun onFocusChange(view: View?, hasFocus: Boolean) {
+                Log.d("username", "focus changed")
+                err = false
+                if (!hasFocus) {
+                    CoroutineScope(Dispatchers.Main + Job()).launch {
+                        withContext(Dispatchers.IO) {
+                            val used = alreadyUsedUsername(
+                                view!!.context,
+                                usernameEditText.text.toString()
+                            )
+                            withContext(Dispatchers.Main) {
+                                if (used) {
+                                    err = true
+                                    usernameEditText.error = "Already used username"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+
         val nextButton: FloatingActionButton = findViewById(R.id.nextButton)
         nextButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
@@ -73,7 +103,6 @@ class RegistrationActivity : AppCompatActivity() {
                 val views = arrayOf(username, name, surname, birthday, city)
                 val role: Spinner = findViewById(R.id.registrationRoleSpinner)
 
-                var err = false;
                 for (v in views) {
                     v.error = null
                     if (v.text.isEmpty()) {
