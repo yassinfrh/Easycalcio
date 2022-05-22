@@ -172,6 +172,43 @@ fun getUser(context : Context) : User{
     return user!!
 }
 
+fun getUsersStartingWith(context: Context, query : String) : MutableList<User>?{
+    val uid = FirebaseAuthWrapper(context).getUid()
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var list : MutableList<User>? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                val children = snapshot.child("users").children
+                for(child in children){
+                    val user = child.getValue(User::class.java)
+                    if(user!!.username.startsWith(query, true) && child.key != uid){
+                        if(list == null){
+                            list = mutableListOf(user)
+                        }
+                        else{
+                            list!!.add(user)
+                        }
+                    }
+                }
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+    return list
+}
+
 class FirebaseDbWrapper(private val context: Context) {
 
     val db =

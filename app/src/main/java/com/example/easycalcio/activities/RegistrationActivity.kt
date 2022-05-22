@@ -121,7 +121,7 @@ class RegistrationActivity : AppCompatActivity() {
                 val formatter = SimpleDateFormat("yyyy/MM/dd")
 
                 val user = User(
-                    username.text.toString(),
+                    username.text.toString().lowercase(),
                     name.text.toString(),
                     surname.text.toString(),
                     formatter.parse(birthday.text.toString()),

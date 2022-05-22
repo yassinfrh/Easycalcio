@@ -5,15 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import androidx.fragment.app.commit
 import com.example.easycalcio.R
+import com.example.easycalcio.models.UsersArrayAdapter
+import com.example.easycalcio.models.getUsersStartingWith
+import kotlinx.coroutines.*
 
-/**
- * A simple [Fragment] subclass.
- * Use the [UsersListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class UsersListFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var query: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,22 +26,36 @@ class UsersListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        //TODO: retrieve the list of users with query
-        //TODO: if list is empty display user not found fragment
-        return inflater.inflate(R.layout.fragment_user_not_found, container, false)
+        val view = inflater.inflate(R.layout.fragment_users_list, container, false)
+        val resultList: ListView = view.findViewById(R.id.resultList)
+        val fragmentManager = requireActivity().supportFragmentManager
+
+        CoroutineScope(Dispatchers.Main + Job()).launch {
+            withContext(Dispatchers.IO) {
+                if (query != null && query!!.isNotEmpty()) {
+                    val users =
+                        getUsersStartingWith(this@UsersListFragment.requireContext(), query!!)
+                    withContext(Dispatchers.Main) {
+                        if (users != null) {
+                            val adapter = UsersArrayAdapter(requireActivity(), 0, users)
+                            resultList.adapter = adapter
+                        } else {
+                            fragmentManager.commit {
+                                setReorderingAllowed(true)
+                                val frag = UserNotFoundFragment()
+                                replace(R.id.usersSearchFragment, frag)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return view
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment UsersListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(queryString: String) =
             UsersListFragment().apply {

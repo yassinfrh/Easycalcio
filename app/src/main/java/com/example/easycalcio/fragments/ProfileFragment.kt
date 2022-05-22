@@ -77,7 +77,7 @@ class ProfileFragment : Fragment() {
                     profileBirthday.setText(user!!.formattedDate)
                     profileCity.setText(user!!.city)
                     roleSpinner.setSelection(roles.indexOf(user!!.role)+1)
-                    currentUsername = user!!.username
+                    currentUsername = user!!.username.lowercase()
                 }
             }
         }
@@ -114,7 +114,7 @@ class ProfileFragment : Fragment() {
             override fun onFocusChange(view: View?, hasFocus: Boolean) {
                 err = false
                 if (!hasFocus) {
-                    val newUsername = profileUsername.text.toString()
+                    val newUsername = profileUsername.text.toString().lowercase()
                     CoroutineScope(Dispatchers.Main + Job()).launch {
                         withContext(Dispatchers.IO) {
                             val used = alreadyUsedUsername(
@@ -187,7 +187,7 @@ class ProfileFragment : Fragment() {
 
                     val formatter = SimpleDateFormat("yyyy/MM/dd")
 
-                    user!!.username = profileUsername.text.toString()
+                    user!!.username = profileUsername.text.toString().lowercase()
                     user!!.name = profileName.text.toString()
                     user!!.surname = profileSurname.text.toString()
                     user!!.birthday = formatter.parse(profileBirthday.text.toString())
