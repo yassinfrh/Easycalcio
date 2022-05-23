@@ -10,10 +10,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -101,7 +99,7 @@ class FirebaseAuthWrapper(private val context: Context) {
             }
     }
 
-    fun signOut(){
+    fun signOut() {
         auth.signOut()
         val intent = Intent(context, SplashActivity::class.java)
         context.startActivity(intent)
@@ -109,18 +107,19 @@ class FirebaseAuthWrapper(private val context: Context) {
 
 }
 
-fun alreadyUsedUsername(context: Context, username : String) : Boolean{
+fun alreadyUsedUsername(context: Context, username: String): Boolean {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
     var used = false
 
     GlobalScope.launch {
-        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
                 Log.d("onDataChangeCallback", "invoked")
-                for(child in snapshot.child("users").children){
-                    val user : User = child.getValue(User::class.java)!!
-                    if(user.username == username){
+                for (child in snapshot.child("users").children) {
+                    val user: User = child.getValue(User::class.java)!!
+                    if (user.username == username) {
                         used = true
                     }
                 }
@@ -141,14 +140,15 @@ fun alreadyUsedUsername(context: Context, username : String) : Boolean{
     return used
 }
 
-fun getUser(context : Context) : User{
+fun getUser(context: Context): User {
     val uid = FirebaseAuthWrapper(context).getUid()
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var user : User? = null
+    var user: User? = null
 
     GlobalScope.launch {
-        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
                 Log.d("onDataChangeCallback", "invoked")
                 user = snapshot.child("users").child(uid!!).getValue(User::class.java)
@@ -172,23 +172,23 @@ fun getUser(context : Context) : User{
     return user!!
 }
 
-fun getUsersStartingWith(context: Context, query : String) : MutableList<User>?{
+fun getUsersStartingWith(context: Context, query: String): MutableList<User>? {
     val uid = FirebaseAuthWrapper(context).getUid()
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var list : MutableList<User>? = null
+    var list: MutableList<User>? = null
 
     GlobalScope.launch {
-        FirebaseDbWrapper(context).readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback{
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
                 val children = snapshot.child("users").children
-                for(child in children){
+                for (child in children) {
                     val user = child.getValue(User::class.java)
-                    if(user!!.username.startsWith(query, true) && child.key != uid){
-                        if(list == null){
+                    if (user!!.username.startsWith(query, true) && child.key != uid) {
+                        if (list == null) {
                             list = mutableListOf(user)
-                        }
-                        else{
+                        } else {
                             list!!.add(user)
                         }
                     }
@@ -206,6 +206,197 @@ fun getUsersStartingWith(context: Context, query : String) : MutableList<User>?{
     lock.withLock {
         condition.await()
     }
+    return list
+}
+
+fun getUserWithUsername(context: Context, username: String): User {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var user: User? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                val children = snapshot.child("users").children
+                for (child in children) {
+                    val curr = child.getValue(User::class.java)
+                    if (curr!!.username == username) {
+                        user = curr
+                        break
+                    }
+                }
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+    return user!!
+}
+
+fun sendFriendRequest(context: Context, username: String) {
+    val uid = FirebaseAuthWrapper(context).getUid()!!
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var requests : MutableList<String>? = null
+
+    FirebaseDbWrapper(context).readDbData(object :
+        FirebaseDbWrapper.Companion.FirebaseReadCallback {
+        override fun onDataChangeCallback(snapshot: DataSnapshot) {
+            requests = snapshot.child("friendRequests").child(uid).value as MutableList<String>?
+
+            lock.withLock {
+                condition.signal()
+            }
+        }
+
+        override fun onCancelledCallback(error: DatabaseError) {
+        }
+
+    })
+
+    lock.withLock {
+        condition.await()
+    }
+
+    if(requests == null){
+        requests = mutableListOf(username)
+    }
+    else{
+        requests!!.add(username)
+    }
+
+    FirebaseDbWrapper(context).db.child("friendRequests").child(uid).setValue(requests)
+}
+
+fun hasSentRequest(context: Context, username: String): Boolean {
+
+    val uid = FirebaseAuthWrapper(context).getUid()!!
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var hasSent = false
+
+    FirebaseDbWrapper(context).readDbData(object :
+        FirebaseDbWrapper.Companion.FirebaseReadCallback {
+        override fun onDataChangeCallback(snapshot: DataSnapshot) {
+            val children = snapshot.child("friendRequests").child(uid).children
+            for (child in children) {
+                val curr = child.getValue(String::class.java)
+                if (curr!! == username) {
+                    hasSent = true
+                    break
+                }
+            }
+            lock.withLock {
+                condition.signal()
+            }
+        }
+
+        override fun onCancelledCallback(error: DatabaseError) {
+        }
+
+    })
+
+    lock.withLock {
+        condition.await()
+    }
+    return hasSent
+}
+
+fun getReceivedRequests(context: Context) : MutableList<String>?{
+    val lock = ReentrantLock()
+    var condition = lock.newCondition()
+    var list: MutableList<String>? = null
+    var loggedUser : User? = null
+
+    GlobalScope.launch {
+        loggedUser = getUser(context)
+
+        lock.withLock {
+            condition.signal()
+        }
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    val username = loggedUser!!.username
+
+    condition = lock.newCondition()
+    //get list of users that sent me a request (uid)
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                val children = snapshot.child("friendRequests").children
+                for (child in children) {
+                    val currRequests = child.getValue() as List<String>
+                    for(request in currRequests){
+                        if(request == username){
+                            if(list == null){
+                                list = mutableListOf(child.key!!)
+                            }
+                            else{
+                                list!!.add(child.key!!)
+                            }
+                        }
+                    }
+                }
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    //translate uid to username
+    if(list != null){
+        condition = lock.newCondition()
+
+        GlobalScope.launch {
+            FirebaseDbWrapper(context).readDbData(object :
+                FirebaseDbWrapper.Companion.FirebaseReadCallback {
+                override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                    val children = snapshot.child("users").children
+                    for (child in children) {
+                        if (list!!.contains(child.key)){
+                            val user = child.getValue(User::class.java)
+                            list!![list!!.indexOf(child.key)] = user!!.username
+                        }
+                    }
+                    lock.withLock {
+                        condition.signal()
+                    }
+                }
+
+                override fun onCancelledCallback(error: DatabaseError) {
+                }
+
+            })
+        }
+
+        lock.withLock {
+            condition.await()
+        }
+    }
+
     return list
 }
 

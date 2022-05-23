@@ -29,8 +29,6 @@ class UsersArrayAdapter(context: Context, val resource: Int, val users: List<Use
         val friendRole: TextView = view.findViewById(R.id.friendRole)
         friendRole.text = user.role
 
-        //TODO: set on click listener
-
         return view
     }
 }

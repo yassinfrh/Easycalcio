@@ -116,7 +116,6 @@
                     android:id="@+id/friendProfileUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="pippo69"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
@@ -125,7 +124,6 @@
                     android:id="@+id/friendProfileName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Pippo"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
@@ -134,7 +132,6 @@
                     android:id="@+id/friendProfileSurname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Baudo"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
@@ -143,7 +140,6 @@
                     android:id="@+id/friendProfileAge"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="22"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
@@ -152,7 +148,6 @@
                     android:id="@+id/friendProfileCity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Rebibbia"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
@@ -161,7 +156,6 @@
                     android:id="@+id/friendProfileRole"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Striker"
                     android:textSize="20sp"
                     android:gravity="center"
                     android:layout_margin="10sp"/>
