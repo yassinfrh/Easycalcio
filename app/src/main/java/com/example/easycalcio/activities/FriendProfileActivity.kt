@@ -60,9 +60,14 @@ class FriendProfileActivity : AppCompatActivity() {
             withContext(Dispatchers.IO) {
                 val requests = getReceivedRequests(this@FriendProfileActivity)
                 withContext(Dispatchers.Main) {
-                    if(requests != null && requests.contains(username)){
-                        addFriendButton.text = getString(R.string.friend_profile_request_received)
-                        addFriendButton.isEnabled = false
+                    if(requests != null){
+                        for(user in requests){
+                            if(user.username == username){
+                                addFriendButton.text = getString(R.string.friend_profile_request_received)
+                                addFriendButton.isEnabled = false
+                                break
+                            }
+                        }
                     }
                 }
             }

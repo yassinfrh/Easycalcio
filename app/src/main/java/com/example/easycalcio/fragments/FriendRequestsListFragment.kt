@@ -5,15 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListAdapter
+import android.widget.ListView
+import androidx.fragment.app.commit
 import com.example.easycalcio.R
-import com.example.easycalcio.models.Match
-import com.example.easycalcio.models.User
+import com.example.easycalcio.models.FriendRequestsArrayAdapter
+import com.example.easycalcio.models.getReceivedRequests
+import kotlinx.coroutines.*
 
-/**
- * A simple [Fragment] subclass.
- * Use the [MatchFriendsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FriendRequestsListFragment : Fragment() {
     private var userId: String? = null
 
@@ -29,23 +28,36 @@ class FriendRequestsListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        //TODO: retrieve the list of friend requests
-        //TODO: if list is empty display empty list fragment
-        return inflater.inflate(R.layout.fragment_empty_friend_requests, container, false)
+        val view = inflater.inflate(R.layout.fragment_friend_requests_list, container, false)
+        val requestsList : ListView = view.findViewById(R.id.requestsList)
+        val fragmentManager = requireActivity().supportFragmentManager
+
+        CoroutineScope(Dispatchers.Main + Job()).launch {
+            withContext(Dispatchers.IO) {
+                val users = getReceivedRequests(view.context)
+                withContext(Dispatchers.Main) {
+                    if(users != null){
+                        val adapter : ListAdapter = FriendRequestsArrayAdapter(requireActivity(), 0, users)
+                        requestsList.adapter = adapter
+                        //TODO: set on click listeners
+                    }
+                    else{
+                        fragmentManager.commit {
+                            setReorderingAllowed(true)
+                            val frag = EmptyFriendRequestsFragment()
+                            replace(R.id.friendRequestsFragment, frag)
+                        }
+                    }
+                }
+            }
+        }
+        return view
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MatchFriendsFragment.
-         */
         @JvmStatic
         fun newInstance(userId: String) =
-            MatchFriendsFragment().apply {
+            FriendRequestsListFragment().apply {
                 arguments = Bundle().apply {
                     putString("userId", userId)
                 }

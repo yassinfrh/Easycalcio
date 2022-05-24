@@ -311,10 +311,11 @@ fun hasSentRequest(context: Context, username: String): Boolean {
     return hasSent
 }
 
-fun getReceivedRequests(context: Context) : MutableList<String>?{
+fun getReceivedRequests(context: Context) : MutableList<User>?{
     val lock = ReentrantLock()
     var condition = lock.newCondition()
     var list: MutableList<String>? = null
+    var usersList : MutableList<User>? = null
     var loggedUser : User? = null
 
     GlobalScope.launch {
@@ -366,7 +367,7 @@ fun getReceivedRequests(context: Context) : MutableList<String>?{
         condition.await()
     }
 
-    //translate uid to username
+    //translate uid to user
     if(list != null){
         condition = lock.newCondition()
 
@@ -378,7 +379,12 @@ fun getReceivedRequests(context: Context) : MutableList<String>?{
                     for (child in children) {
                         if (list!!.contains(child.key)){
                             val user = child.getValue(User::class.java)
-                            list!![list!!.indexOf(child.key)] = user!!.username
+                            if(usersList == null){
+                                usersList = mutableListOf(user!!)
+                            }
+                            else{
+                                usersList!!.add(user!!)
+                            }
                         }
                     }
                     lock.withLock {
@@ -397,7 +403,7 @@ fun getReceivedRequests(context: Context) : MutableList<String>?{
         }
     }
 
-    return list
+    return usersList
 }
 
 class FirebaseDbWrapper(private val context: Context) {

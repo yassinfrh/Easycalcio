@@ -45,7 +45,7 @@ class MatchRequestsListFragment : Fragment() {
          */
         @JvmStatic
         fun newInstance(userId: String) =
-            MatchFriendsFragment().apply {
+            MatchRequestsListFragment().apply {
                 arguments = Bundle().apply {
                     putString("userId", userId)
                 }

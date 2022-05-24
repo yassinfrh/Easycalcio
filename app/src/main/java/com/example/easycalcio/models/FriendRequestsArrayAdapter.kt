@@ -22,8 +22,6 @@ class FriendRequestsArrayAdapter(context: Context, val resource: Int, val users:
         val friendUsername: TextView = view!!.findViewById(R.id.friendUsername)
         friendUsername.text = user.username
 
-        //TODO: set on click listeners
-
         return view
     }
 }
