@@ -37,7 +37,7 @@ class FriendProfileActivity : AppCompatActivity() {
                     ageView.text = user.getAge().toString()
                     cityView.text = user.city
                     roleView.text = user.role
-                    if (currUser.friends.contains(username)) {
+                    if (currUser.friends != null && currUser.friends!!.contains(username)) {
                         addFriendButton.text = getString(R.string.friend_profile_remove_friend)
                     }
                 }
@@ -48,7 +48,7 @@ class FriendProfileActivity : AppCompatActivity() {
             withContext(Dispatchers.IO) {
                 val hasSent = hasSentRequest(this@FriendProfileActivity, username)
                 withContext(Dispatchers.Main) {
-                    if(hasSent){
+                    if (hasSent) {
                         addFriendButton.text = getString(R.string.friend_profile_request_sent)
                         addFriendButton.isEnabled = false
                     }
@@ -60,10 +60,11 @@ class FriendProfileActivity : AppCompatActivity() {
             withContext(Dispatchers.IO) {
                 val requests = getReceivedRequests(this@FriendProfileActivity)
                 withContext(Dispatchers.Main) {
-                    if(requests != null){
-                        for(user in requests){
-                            if(user.username == username){
-                                addFriendButton.text = getString(R.string.friend_profile_request_received)
+                    if (requests != null) {
+                        for (user in requests) {
+                            if (user.username == username) {
+                                addFriendButton.text =
+                                    getString(R.string.friend_profile_request_received)
                                 addFriendButton.isEnabled = false
                                 break
                             }

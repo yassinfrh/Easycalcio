@@ -39,7 +39,6 @@ class FriendRequestsListFragment : Fragment() {
                     if(users != null){
                         val adapter : ListAdapter = FriendRequestsArrayAdapter(requireActivity(), 0, users)
                         requestsList.adapter = adapter
-                        //TODO: set on click listeners
                     }
                     else{
                         fragmentManager.commit {

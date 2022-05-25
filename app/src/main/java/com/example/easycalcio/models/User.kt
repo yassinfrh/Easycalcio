@@ -12,8 +12,8 @@ class User() {
     var birthday: Date = Date()
     var city: String = "*"
     var role: String = "*"
-    var friends: MutableList<String> = mutableListOf()
-    var matches: MutableList<Long> = mutableListOf()
+    var friends: MutableList<String>? = mutableListOf()
+    var matches: MutableList<Long>? = mutableListOf()
 
 
     constructor(
@@ -23,8 +23,8 @@ class User() {
         birthday: Date,
         city: String,
         role: String,
-        friends: MutableList<String>,
-        matches: MutableList<Long>
+        friends: MutableList<String>?,
+        matches: MutableList<Long>?
     ) : this() {
         this.username = username
         this.name = name
