@@ -1,6 +1,5 @@
 package com.example.easycalcio.models
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -10,8 +9,10 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.easycalcio.R
 import com.example.easycalcio.activities.FriendProfileActivity
+import com.example.easycalcio.fragments.FriendRequestsFragment
 import kotlinx.coroutines.*
 
 class FriendRequestsArrayAdapter(context: Context, val resource: Int, val users: List<User>) :
@@ -34,8 +35,8 @@ class FriendRequestsArrayAdapter(context: Context, val resource: Int, val users:
                     withContext(Dispatchers.IO) {
                         acceptFriendRequest(view.context, user.username)
                         withContext(Dispatchers.Main) {
-                            val activity : Activity = parent.context as Activity
-                            //TODO:refresh fragment
+                            val activity : AppCompatActivity = context as AppCompatActivity
+                            activity.supportFragmentManager.beginTransaction().replace(R.id.fragment_container, FriendRequestsFragment()).commit()
                         }
                     }
                 }
@@ -50,7 +51,8 @@ class FriendRequestsArrayAdapter(context: Context, val resource: Int, val users:
                     withContext(Dispatchers.IO) {
                         declineFriendRequest(view.context, user.username)
                         withContext(Dispatchers.Main) {
-                            view.visibility = View.GONE
+                            val activity : AppCompatActivity = context as AppCompatActivity
+                            activity.supportFragmentManager.beginTransaction().replace(R.id.fragment_container, FriendRequestsFragment()).commit()
                         }
                     }
                 }

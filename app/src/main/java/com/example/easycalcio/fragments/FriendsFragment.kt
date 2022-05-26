@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.example.easycalcio.R
 import com.example.easycalcio.activities.SearchUserActivity
+import com.example.easycalcio.models.FirebaseAuthWrapper
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class FriendsFragment : Fragment() {
@@ -23,7 +25,12 @@ class FriendsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //TODO: display friends list
+        val fragmentManager = requireActivity().supportFragmentManager
+        fragmentManager.commit {
+            setReorderingAllowed(true)
+            val frag = FriendsListFragment.newInstance(FirebaseAuthWrapper(view.context).getUid()!!)
+            replace(R.id.friendsFragment, frag)
+        }
 
         val searchButton: FloatingActionButton =
             requireView().findViewById(R.id.friendsSearchButton)

@@ -76,12 +76,25 @@ class FriendProfileActivity : AppCompatActivity() {
 
         addFriendButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
-                CoroutineScope(Dispatchers.Main + Job()).launch {
-                    withContext(Dispatchers.IO) {
-                        sendFriendRequest(this@FriendProfileActivity, username)
-                        withContext(Dispatchers.Main) {
-                            addFriendButton.text = getString(R.string.friend_profile_request_sent)
-                            addFriendButton.isEnabled = false
+                if(addFriendButton.text == getString(R.string.friend_profile_add_friend)){
+                    CoroutineScope(Dispatchers.Main + Job()).launch {
+                        withContext(Dispatchers.IO) {
+                            sendFriendRequest(this@FriendProfileActivity, username)
+                            withContext(Dispatchers.Main) {
+                                addFriendButton.text = getString(R.string.friend_profile_request_sent)
+                                addFriendButton.isEnabled = false
+                            }
+                        }
+                    }
+                }
+                if(addFriendButton.text == getString(R.string.friend_profile_remove_friend)){
+                    CoroutineScope(Dispatchers.Main + Job()).launch {
+                        withContext(Dispatchers.IO) {
+                            removeFriend(this@FriendProfileActivity, username)
+                            withContext(Dispatchers.Main) {
+                                addFriendButton.text = getString(R.string.friend_profile_add_friend)
+                                addFriendButton.isEnabled = true
+                            }
                         }
                     }
                 }
