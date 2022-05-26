@@ -192,7 +192,16 @@ fun getUsersStartingWith(context: Context, query: String): MutableList<User>? {
                         if (list == null) {
                             list = mutableListOf(user)
                         } else {
-                            list!!.add(user)
+                            var contains = false
+                            for(element in list!!){
+                                if(element.username == user.username){
+                                    contains = true
+                                    break
+                                }
+                            }
+                            if(!contains){
+                                list!!.add(user)
+                            }
                         }
                     }
                 }
