@@ -143,6 +143,31 @@ fun alreadyUsedUsername(context: Context, username: String): Boolean {
     return used
 }
 
+fun registerUser(context: Context){
+    val uid = FirebaseAuthWrapper(context).getUid()!!
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+                snapshot.child("notCompletedUsers")
+                    .child(uid).ref.removeValue()
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+                Log.d("onCancelledCallback", "invoked")
+            }
+
+        })
+    }
+
+}
+
 fun getUser(context: Context): User {
     val uid = FirebaseAuthWrapper(context).getUid()
     val lock = ReentrantLock()

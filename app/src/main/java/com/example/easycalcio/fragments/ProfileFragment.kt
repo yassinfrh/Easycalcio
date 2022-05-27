@@ -76,7 +76,7 @@ class ProfileFragment : Fragment() {
                     profileSurname.setText(user!!.surname)
                     profileBirthday.setText(user!!.formattedDate)
                     profileCity.setText(user!!.city)
-                    roleSpinner.setSelection(roles.indexOf(user!!.role)+1)
+                    roleSpinner.setSelection(roles.indexOf(user!!.role) + 1)
                     currentUsername = user!!.username.lowercase()
                 }
             }
@@ -108,11 +108,11 @@ class ProfileFragment : Fragment() {
 
         //TODO: edit profile picture
 
-        var err = false
+        var usernameErr = false
 
         profileUsername.onFocusChangeListener = object : View.OnFocusChangeListener {
             override fun onFocusChange(view: View?, hasFocus: Boolean) {
-                err = false
+                usernameErr = false
                 if (!hasFocus) {
                     val newUsername = profileUsername.text.toString().lowercase()
                     CoroutineScope(Dispatchers.Main + Job()).launch {
@@ -123,7 +123,7 @@ class ProfileFragment : Fragment() {
                             )
                             withContext(Dispatchers.Main) {
                                 if (used && newUsername != currentUsername) {
-                                    err = true
+                                    usernameErr = true
                                     profileUsername.error = "Already used username"
                                 }
                             }
@@ -136,9 +136,10 @@ class ProfileFragment : Fragment() {
 
         val profileButton: FloatingActionButton =
             requireView().findViewById(R.id.profileEditSaveButton)
+        var err: Boolean
         profileButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
-
+                err = false
                 edit = !edit
 
                 if (edit) {
@@ -166,7 +167,7 @@ class ProfileFragment : Fragment() {
                         err = true
                         Toast.makeText(view!!.context, "Select a role!", Toast.LENGTH_SHORT).show()
                     }
-                    if (err)
+                    if (err || usernameErr)
                         return
 
                     for (v in views) {

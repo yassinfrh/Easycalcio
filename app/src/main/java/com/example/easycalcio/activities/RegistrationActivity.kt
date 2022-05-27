@@ -11,10 +11,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.easycalcio.R
-import com.example.easycalcio.models.FirebaseAuthWrapper
-import com.example.easycalcio.models.FirebaseDbWrapper
-import com.example.easycalcio.models.User
-import com.example.easycalcio.models.alreadyUsedUsername
+import com.example.easycalcio.models.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -64,13 +61,13 @@ class RegistrationActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = adapter
 
-        var err = false
+        var usernameErr = false
 
-        val usernameEditText : EditText = findViewById(R.id.registrationUsername)
+        val usernameEditText: EditText = findViewById(R.id.registrationUsername)
         usernameEditText.onFocusChangeListener = object : View.OnFocusChangeListener {
             override fun onFocusChange(view: View?, hasFocus: Boolean) {
                 Log.d("username", "focus changed")
-                err = false
+                usernameErr = false
                 if (!hasFocus) {
                     CoroutineScope(Dispatchers.Main + Job()).launch {
                         withContext(Dispatchers.IO) {
@@ -80,7 +77,7 @@ class RegistrationActivity : AppCompatActivity() {
                             )
                             withContext(Dispatchers.Main) {
                                 if (used) {
-                                    err = true
+                                    usernameErr = true
                                     usernameEditText.error = "Already used username"
                                 }
                             }
@@ -91,7 +88,7 @@ class RegistrationActivity : AppCompatActivity() {
 
         }
 
-
+        var err: Boolean
         val nextButton: FloatingActionButton = findViewById(R.id.nextButton)
         nextButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
@@ -103,6 +100,7 @@ class RegistrationActivity : AppCompatActivity() {
                 val views = arrayOf(username, name, surname, birthday, city)
                 val role: Spinner = findViewById(R.id.registrationRoleSpinner)
 
+                err = false
                 for (v in views) {
                     v.error = null
                     if (v.text.isEmpty()) {
@@ -114,7 +112,7 @@ class RegistrationActivity : AppCompatActivity() {
                     err = true
                     Toast.makeText(view!!.context, "Select a role!", Toast.LENGTH_SHORT).show()
                 }
-                if (err)
+                if (err || usernameErr)
                     return
 
 
@@ -130,20 +128,11 @@ class RegistrationActivity : AppCompatActivity() {
                     mutableListOf(),
                     mutableListOf()
                 )
-                val wrapper = FirebaseDbWrapper(view!!.context)
-                wrapper.writeUser(user)
-                wrapper.readDbData(object : FirebaseDbWrapper.Companion.FirebaseReadCallback {
-                    override fun onDataChangeCallback(snapshot: DataSnapshot) {
-                        Log.d("onDataChangeCallback", "invoked")
-                        snapshot.child("notCompletedUsers")
-                            .child(FirebaseAuthWrapper(view.context).getUid()!!).ref.removeValue()
-                    }
-
-                    override fun onCancelledCallback(error: DatabaseError) {
-                        Log.d("onCancelledCallback", "invoked")
-                    }
-
-                })
+                //write user in db
+                FirebaseDbWrapper(view!!.context).writeUser(user)
+                GlobalScope.launch {
+                    registerUser(view.context)
+                }
                 val intent = Intent(view.context, SplashActivity::class.java)
                 view.context.startActivity(intent)
                 finish()
