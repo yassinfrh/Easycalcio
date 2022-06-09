@@ -33,16 +33,16 @@ class FriendsListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_friends_list, container, false)
-        val friendsList : ListView = view.findViewById(R.id.friendsList)
+        val friendsList: ListView = view.findViewById(R.id.friendsList)
         val fragmentManager = requireActivity().supportFragmentManager
+
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 val friends = getFriendsList(view.context)
                 withContext(Dispatchers.Main) {
-                    if(friends != null){
-                        val adapter : ListAdapter = UsersArrayAdapter(requireActivity(), 0, friends)
+                    if (friends != null) {
+                        val adapter: ListAdapter = UsersArrayAdapter(requireActivity(), 0, friends)
                         friendsList.adapter = adapter
                         friendsList.onItemClickListener =
                             object : AdapterView.OnItemClickListener {
@@ -52,15 +52,16 @@ class FriendsListFragment : Fragment() {
                                     position: Int,
                                     id: Long
                                 ) {
-                                    val username : String = view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
-                                    val intent = Intent(view.context, FriendProfileActivity::class.java)
+                                    val username: String =
+                                        view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
+                                    val intent =
+                                        Intent(view.context, FriendProfileActivity::class.java)
                                     intent.putExtra("username", username)
                                     view.context.startActivity(intent)
                                 }
 
                             }
-                    }
-                    else{
+                    } else {
                         fragmentManager.commit {
                             setReorderingAllowed(true)
                             val frag = SearchUserFragment()

@@ -40,7 +40,8 @@
                 android:text="@string/friend_profile_chat"
                 android:layout_marginStart="20sp"
                 android:layout_marginEnd="20sp"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:enabled="false"/>
         </LinearLayout>
 
         <LinearLayout

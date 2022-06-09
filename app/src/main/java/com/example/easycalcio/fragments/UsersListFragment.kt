@@ -52,8 +52,10 @@ class UsersListFragment : Fragment() {
                                         position: Int,
                                         id: Long
                                     ) {
-                                        val username : String = view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
-                                        val intent = Intent(view.context, FriendProfileActivity::class.java)
+                                        val username: String =
+                                            view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
+                                        val intent =
+                                            Intent(view.context, FriendProfileActivity::class.java)
                                         intent.putExtra("username", username)
                                         view.context.startActivity(intent)
                                     }
