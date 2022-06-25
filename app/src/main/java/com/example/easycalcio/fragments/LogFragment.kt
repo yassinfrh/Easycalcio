@@ -67,20 +67,12 @@ abstract class LogFragment(val label: String, val buttonLabel: String) : Fragmen
 
 }
 
-// TODO: Remove hardcoded strings and put them in the file res/values/strings and retrieve them with the R.string.<string_id>
 class LogInFragment : LogFragment("Switch to SignUp","LOGIN") {
     override fun action(email: String, password: String) {
         val firebaseAuthWrapper = FirebaseAuthWrapper(this.requireContext())
         firebaseAuthWrapper.signIn(email, password)
     }
 
-    /*override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_log, container, false)
-    }*/
 }
 
 class SignUpFragment : LogFragment("Switch to LogIn", "SIGNUP") {
@@ -89,11 +81,4 @@ class SignUpFragment : LogFragment("Switch to LogIn", "SIGNUP") {
         firebaseAuthWrapper.signUp(email, password)
     }
 
-    /*override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_log, container, false)
-    }*/
 }

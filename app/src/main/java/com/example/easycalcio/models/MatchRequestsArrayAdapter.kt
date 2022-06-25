@@ -18,8 +18,6 @@ class MatchRequestsArrayAdapter(context: Context, val resource: Int, val matches
                 LayoutInflater.from(context).inflate(R.layout.match_request_layout, parent, false)
         }
 
-        //TODO: replace profile picture
-
         val matchUsername: TextView = view!!.findViewById(R.id.friendUsername)
         matchUsername.text = match.username
 

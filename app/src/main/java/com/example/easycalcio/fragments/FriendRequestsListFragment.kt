@@ -27,7 +27,6 @@ class FriendRequestsListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_friend_requests_list, container, false)
         val requestsList : ListView = view.findViewById(R.id.requestsList)
         val fragmentManager = requireActivity().supportFragmentManager

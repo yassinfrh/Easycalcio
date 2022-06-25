@@ -21,6 +21,7 @@ import kotlinx.coroutines.*
 class MainActivity : AppCompatActivity() {
 
     private var drawer: DrawerLayout? = null
+    var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
 
         val header = navigationView.getHeaderView(0)
         val headerUsername : TextView = header.findViewById(R.id.nav_username)
-        var user: User? = null
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {

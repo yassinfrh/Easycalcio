@@ -99,6 +99,8 @@ class EditMatchActivity : AppCompatActivity() {
 
         //TODO: friends list
 
+        //TODO: delete match button
+
         saveButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(view: View?) {
 
