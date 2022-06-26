@@ -1,14 +1,21 @@
 package com.example.easycalcio.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ListAdapter
 import android.widget.ListView
+import android.widget.TextView
 import androidx.fragment.app.commit
 import com.example.easycalcio.R
+import com.example.easycalcio.activities.EditMatchActivity
+import com.example.easycalcio.activities.FriendProfileActivity
+import com.example.easycalcio.activities.MainActivity
+import com.example.easycalcio.activities.MatchInfoActivity
 import com.example.easycalcio.models.*
 import kotlinx.coroutines.*
 
@@ -34,12 +41,37 @@ class MatchListFragment : Fragment() {
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 val matches = getMatches(view.context)
+                val activity = requireActivity() as MainActivity
                 withContext(Dispatchers.Main) {
                     if (matches != null) {
                         val adapter: ListAdapter =
                             MatchesArrayAdapter(requireActivity(), 0, matches)
                         matchesList.adapter = adapter
-                        //TODO: display match info when you click
+                        matchesList.onItemClickListener = object : AdapterView.OnItemClickListener {
+                            override fun onItemClick(
+                                parent: AdapterView<*>?,
+                                view: View?,
+                                position: Int,
+                                id: Long
+                            ) {
+                                val matchId: Long =
+                                    view!!.findViewById<TextView>(R.id.matchId).text.toString()
+                                        .toLong()
+                                val matchOrganizer: String =
+                                    view.findViewById<TextView>(R.id.matchOrganizer).text.toString()
+
+                                var intent: Intent? = null
+                                intent = if (matchOrganizer == activity.user!!.username) {
+                                    Intent(view.context, EditMatchActivity::class.java)
+                                } else {
+                                    Intent(view.context, MatchInfoActivity::class.java)
+                                }
+
+                                intent.putExtra("matchId", matchId)
+                                view.context.startActivity(intent)
+                            }
+
+                        }
                     } else {
                         fragmentManager.commit {
                             setReorderingAllowed(true)

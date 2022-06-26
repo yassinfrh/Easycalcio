@@ -10,9 +10,11 @@
     <string name="match_address">Address</string>
     <string name="match_city">City</string>
     <string name="match_time">Time</string>
-    <string name="match_players_number">N° players:</string>
+    <string name="match_players_number">N° players</string>
     <string name="players_number_text_view">10</string>
-    <string name="match_friends">Friends:</string>
+    <string name="match_friends">Friends</string>
+    <string name="match_organizer">Organizer</string>
+    <string name="match_players">Players</string>
 
     <!-- Match friends strings -->
     <string name="friend_name">Name</string>

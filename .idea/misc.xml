@@ -4,12 +4,14 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/drawable/ball_background.xml" value="0.25" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/drawable/ic_delete.xml" value="0.182" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout-v26/activity_new_match.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_chat.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_edit_match.xml" value="0.25" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_friend_profile.xml" value="0.264" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_match_info.xml" value="0.2792207792207792" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_new_match.xml" value="0.25" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_profile.xml" value="0.33" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/activity_registration.xml" value="0.24895833333333334" />
@@ -28,6 +30,7 @@
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_log.xml" value="0.24895833333333334" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_friends.xml" value="0.264" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_list.xml" value="0.3625" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_players.xml" value="0.2710526315789474" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_requests.xml" value="0.25" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_match_requests_list.xml" value="0.2359375" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/fragment_profile.xml" value="0.3625" />
@@ -37,6 +40,7 @@
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/friend_request_layout.xml" value="0.264" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_friend_layout.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_layout.xml" value="0.3625" />
+        <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_player_layout.xml" value="0.2820175438596491" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_reqeust_layout.xml" value="0.24895833333333334" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/match_request_layout.xml" value="0.3625" />
         <entry key="..\:/Users/hiepp/Documents/University/Mobile/Thesis/Easycalcio/app/src/main/res/layout/message_layout.xml" value="0.3614583333333333" />

@@ -1057,7 +1057,7 @@ fun getMatches(context: Context): MutableList<Match>? {
 fun getMatchRequests(context: Context): MutableList<Match>? {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var username : String? = null
+    var username: String? = null
 
     GlobalScope.launch {
         val user = getUser(context)
@@ -1145,6 +1145,35 @@ fun getMatchRequests(context: Context): MutableList<Match>? {
     }
 
     return matchList
+}
+
+fun getMatch(context: Context, matchId: Long) : Match{
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var match : Match? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                match = snapshot.child("matches").child(matchId.toString()).getValue(Match::class.java)
+
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+
+    return match!!
 }
 
 class FirebaseDbWrapper(context: Context) {

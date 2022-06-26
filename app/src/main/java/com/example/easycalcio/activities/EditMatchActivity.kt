@@ -17,12 +17,15 @@ import java.util.*
 class EditMatchActivity : AppCompatActivity() {
 
     private val myCalendar : Calendar = Calendar.getInstance()
-    private var edit = false
+    var edit = false
+    var selectedFriends: MutableList<String>? = null
+    var matchId : Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_match)
         title = "Edit match"
+        matchId = intent.getLongExtra("matchId", 0)
 
         //TODO: set fields
 
@@ -96,8 +99,6 @@ class EditMatchActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
             }
         })
-
-        //TODO: friends list
 
         //TODO: delete match button
 

@@ -30,6 +30,7 @@
         <activity android:name=".activities.ChatActivity" />
         <activity android:name=".activities.EditMatchActivity" />
         <activity android:name=".activities.SearchUserActivity" />
+        <activity android:name=".activities.MatchInfoActivity"/>
     </application>
 
 </manifest>

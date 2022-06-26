@@ -2,7 +2,6 @@ package com.example.easycalcio.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +10,18 @@ import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.example.easycalcio.R
-import com.example.easycalcio.activities.NewMatchActivity
+import com.example.easycalcio.activities.EditMatchActivity
 import com.example.easycalcio.models.UsersArrayAdapter
 import com.example.easycalcio.models.getFriendsList
+import com.example.easycalcio.models.getMatch
 import kotlinx.coroutines.*
 
-class MatchFriendsFragment : Fragment() {
+class EditMatchFriendsFragment : Fragment()  {
+
     private var userId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,15 +40,31 @@ class MatchFriendsFragment : Fragment() {
 
 
         val fragmentManager = requireActivity().supportFragmentManager
-        val activity : NewMatchActivity = requireActivity() as NewMatchActivity
+        val activity = requireActivity() as EditMatchActivity
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 val friends = getFriendsList(view.context)
+                val match = getMatch(view.context, activity.matchId!!)
                 withContext(Dispatchers.Main) {
                     if (friends != null) {
                         val adapter: ListAdapter = UsersArrayAdapter(requireActivity(), 0, friends)
                         friendsList.adapter = adapter
+
+                        //set players background to green and add them to selected friends
+                        for(v in friendsList.children){
+                            val username = v.findViewById<TextView>(R.id.friendName).text.toString()
+                            if(match.players!!.contains(username)){
+                                v.setBackgroundColor(Color.parseColor("#79f29d"))
+                                if(activity.selectedFriends == null){
+                                    activity.selectedFriends = mutableListOf(username)
+                                }
+                                else{
+                                    activity.selectedFriends!!.add(username)
+                                }
+                            }
+                        }
+
                         friendsList.onItemClickListener =
                             object : AdapterView.OnItemClickListener {
                                 override fun onItemClick(
@@ -54,20 +73,22 @@ class MatchFriendsFragment : Fragment() {
                                     position: Int,
                                     id: Long
                                 ) {
-                                    val username: String =
-                                        view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
-                                    if(activity.selectedFriends == null){
-                                        activity.selectedFriends = mutableListOf(username)
-                                        view.setBackgroundColor(Color.parseColor("#79f29d"))
-                                    }
-                                    else{
-                                        if(activity.selectedFriends!!.contains(username)){
-                                            activity.selectedFriends!!.remove(username)
-                                            view.setBackgroundColor(ContextCompat.getColor(activity, androidx.cardview.R.color.cardview_shadow_end_color))
+                                    if(activity.edit){
+                                        val username: String =
+                                            view!!.findViewById<TextView>(R.id.friendUsername).text.toString()
+                                        if(activity.selectedFriends == null){
+                                            activity.selectedFriends = mutableListOf(username)
+                                            view.setBackgroundColor(Color.parseColor("#79f29d"))
                                         }
                                         else{
-                                            activity.selectedFriends!!.add(username)
-                                            view.setBackgroundColor(Color.parseColor("#79f29d"))
+                                            if(activity.selectedFriends!!.contains(username)){
+                                                activity.selectedFriends!!.remove(username)
+                                                view.setBackgroundColor(ContextCompat.getColor(activity, androidx.cardview.R.color.cardview_shadow_end_color))
+                                            }
+                                            else{
+                                                activity.selectedFriends!!.add(username)
+                                                view.setBackgroundColor(Color.parseColor("#79f29d"))
+                                            }
                                         }
                                     }
                                 }
@@ -95,4 +116,5 @@ class MatchFriendsFragment : Fragment() {
                 }
             }
     }
+
 }
