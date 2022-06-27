@@ -10,7 +10,6 @@ import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.example.easycalcio.R
@@ -36,7 +35,7 @@ class EditMatchFriendsFragment : Fragment()  {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_match_friends, container, false)
-        val friendsList: ListView = view.findViewById(R.id.matchFriendsList)
+        val friendsList : ListView = view.findViewById(R.id.matchFriendsList)
 
 
         val fragmentManager = requireActivity().supportFragmentManager
@@ -45,26 +44,10 @@ class EditMatchFriendsFragment : Fragment()  {
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 val friends = getFriendsList(view.context)
-                val match = getMatch(view.context, activity.matchId!!)
                 withContext(Dispatchers.Main) {
                     if (friends != null) {
                         val adapter: ListAdapter = UsersArrayAdapter(requireActivity(), 0, friends)
                         friendsList.adapter = adapter
-
-                        //set players background to green and add them to selected friends
-                        for(v in friendsList.children){
-                            val username = v.findViewById<TextView>(R.id.friendName).text.toString()
-                            if(match.players!!.contains(username)){
-                                v.setBackgroundColor(Color.parseColor("#79f29d"))
-                                if(activity.selectedFriends == null){
-                                    activity.selectedFriends = mutableListOf(username)
-                                }
-                                else{
-                                    activity.selectedFriends!!.add(username)
-                                }
-                            }
-                        }
-
                         friendsList.onItemClickListener =
                             object : AdapterView.OnItemClickListener {
                                 override fun onItemClick(

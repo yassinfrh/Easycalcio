@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.easycalcio.R
 import com.example.easycalcio.activities.MatchInfoActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.easycalcio.fragments.MatchRequestsFragment
+import kotlinx.coroutines.*
 
 class MatchRequestsArrayAdapter(context: Context, val resource: Int, val matches: List<Match>) :
     ArrayAdapter<Match>(context, resource, matches) {
@@ -40,7 +42,15 @@ class MatchRequestsArrayAdapter(context: Context, val resource: Int, val matches
 
         acceptButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                //TODO: accept request
+                CoroutineScope(Dispatchers.Main + Job()).launch {
+                    withContext(Dispatchers.IO) {
+                        acceptMatchRequest(context, match.id)
+                        withContext(Dispatchers.Main) {
+                            val activity : AppCompatActivity = context as AppCompatActivity
+                            activity.supportFragmentManager.beginTransaction().replace(R.id.fragment_container, MatchRequestsFragment()).commit()
+                        }
+                    }
+                }
             }
 
         })
@@ -49,7 +59,15 @@ class MatchRequestsArrayAdapter(context: Context, val resource: Int, val matches
 
         declineButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                //TODO: decline request
+                CoroutineScope(Dispatchers.Main + Job()).launch {
+                    withContext(Dispatchers.IO) {
+                        declineMatchRequest(context, match.id)
+                        withContext(Dispatchers.Main) {
+                            val activity : AppCompatActivity = context as AppCompatActivity
+                            activity.supportFragmentManager.beginTransaction().replace(R.id.fragment_container, MatchRequestsFragment()).commit()
+                        }
+                    }
+                }
             }
 
         })

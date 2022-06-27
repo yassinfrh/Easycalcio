@@ -1,5 +1,7 @@
 package com.example.easycalcio.activities
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         val navigationView: NavigationView = findViewById(R.id.nav_view)
 
         val header = navigationView.getHeaderView(0)
-        val headerUsername : TextView = header.findViewById(R.id.nav_username)
+        val headerUsername: TextView = header.findViewById(R.id.nav_username)
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
@@ -45,6 +47,17 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     headerUsername.text = user!!.username
                     //TODO: set header profile picture
+                }
+            }
+        }
+
+        val dialogClickListener = object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                when (which) {
+                    DialogInterface.BUTTON_POSITIVE -> {
+                        FirebaseAuthWrapper(thiz).signOut()
+                        finish()
+                    }
                 }
             }
         }
@@ -65,8 +78,10 @@ class MainActivity : AppCompatActivity() {
                     R.id.nav_matchRequests -> supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, MatchRequestsFragment()).commit()
                     R.id.nav_logout -> {
-                        FirebaseAuthWrapper(thiz).signOut()
-                        finish()
+                        val builder = AlertDialog.Builder(this@MainActivity)
+                        builder.setMessage("Are you sure you wanna logout?")
+                            .setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener).show()
                     }
                 }
                 drawer!!.closeDrawer(GravityCompat.START)

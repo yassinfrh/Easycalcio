@@ -36,11 +36,17 @@ class Match() {
         this.players = players
     }
 
-    private val formatter = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
+    private val dateFormatter = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+    private val timeFormatter = SimpleDateFormat("HH:mm", Locale.US)
 
 
-    val formattedDate: String?
-        get() : String? {
-            return formatter.format(this.date)
+    val formattedDate: String
+        get() : String {
+            return dateFormatter.format(this.date)
+        }
+
+    val formattedTime: String
+        get(): String {
+            return timeFormatter.format(this.date)
         }
 }

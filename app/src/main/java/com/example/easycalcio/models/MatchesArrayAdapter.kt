@@ -33,7 +33,7 @@ class MatchesArrayAdapter(context: Context, val resource: Int, val matches: List
         matchTitle.text = match.title
 
         val matchDate: TextView = view.findViewById(R.id.matchDate)
-        matchDate.text = match.formattedDate
+        matchDate.text = match.formattedDate + " " + match.formattedTime
 
         val matchLocation: TextView = view.findViewById(R.id.matchCity)
         matchLocation.text = match.city

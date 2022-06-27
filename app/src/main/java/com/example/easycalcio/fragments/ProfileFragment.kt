@@ -191,7 +191,7 @@ class ProfileFragment : Fragment() {
                     user!!.username = profileUsername.text.toString().lowercase()
                     user!!.name = profileName.text.toString()
                     user!!.surname = profileSurname.text.toString()
-                    user!!.birthday = formatter.parse(profileBirthday.text.toString())
+                    user!!.birthday = formatter.parse(profileBirthday.text.toString()) as Date
                     user!!.city = profileCity.text.toString()
                     user!!.role = roleSpinner.selectedItem.toString()
 

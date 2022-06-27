@@ -1147,17 +1147,18 @@ fun getMatchRequests(context: Context): MutableList<Match>? {
     return matchList
 }
 
-fun getMatch(context: Context, matchId: Long) : Match{
+fun getMatch(context: Context, matchId: Long): Match {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var match : Match? = null
+    var match: Match? = null
 
     GlobalScope.launch {
         FirebaseDbWrapper(context).readDbData(object :
             FirebaseDbWrapper.Companion.FirebaseReadCallback {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
 
-                match = snapshot.child("matches").child(matchId.toString()).getValue(Match::class.java)
+                match =
+                    snapshot.child("matches").child(matchId.toString()).getValue(Match::class.java)
 
                 lock.withLock {
                     condition.signal()
@@ -1174,6 +1175,259 @@ fun getMatch(context: Context, matchId: Long) : Match{
     }
 
     return match!!
+}
+
+fun removeMatch(context: Context, matchId: Long) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                snapshot.child("matchRequests").child(matchId.toString()).ref.removeValue()
+                snapshot.child("matches").child(matchId.toString()).ref.removeValue()
+
+                for (child in snapshot.child("users").children) {
+                    val user = child.getValue(User::class.java)
+                    if (user!!.matches!!.contains(matchId)) {
+                        user.matches!!.remove(matchId)
+                        FirebaseDbWrapper(context).writeUser(user)
+                    }
+                }
+
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+}
+
+fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var currUser: User? = null
+
+    GlobalScope.launch {
+        currUser = getUser(context)
+        lock.withLock {
+            condition.signal()
+        }
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    var removedPlayers : MutableList<String>? = null
+
+    if (friends == null) {
+        removedPlayers = match.players
+        removedPlayers!!.remove(currUser!!.username)
+        match.players = mutableListOf(currUser!!.username)
+    } else {
+        for (player in match.players!!) {
+            if (!friends.contains(player) && player != currUser!!.username) {
+                match.players!!.remove(player)
+                if(removedPlayers == null){
+                    removedPlayers = mutableListOf(player)
+                }
+                else{
+                    removedPlayers.add(player)
+                }
+            }
+        }
+    }
+
+
+    if (match.players != null) {
+        for (player in match.players!!) {
+            if (friends != null && friends.contains(player)) {
+                friends.remove(player)
+            }
+        }
+    }
+
+    val lock1 = ReentrantLock()
+    val condition1 = lock1.newCondition()
+    var requests: MutableList<String>? = null
+    var removedUsers : MutableMap<String, User>? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                requests = snapshot.child("matchRequests")
+                    .child(match.id.toString()).value as MutableList<String>?
+                if (friends != null) {
+                    if (requests == null) {
+                        requests = friends
+                    } else {
+                        requests!!.addAll(friends)
+                    }
+                }
+
+                if(removedPlayers != null){
+                    val children = snapshot.child("users").children
+                    for(child in children){
+                        val userChild = child.getValue(User::class.java)
+                        for(player in removedPlayers){
+                            if(userChild!!.username == player){
+                                if(removedUsers == null){
+                                    removedUsers = mutableMapOf(child.key!! to userChild)
+                                }
+                                else{
+                                    removedUsers!![child.key!!] = userChild
+                                }
+                            }
+                        }
+                    }
+                }
+
+                lock1.withLock {
+                    condition1.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock1.withLock {
+        condition1.await()
+    }
+
+    if (requests != null) {
+        requests = requests!!.toSet().toMutableList()
+        FirebaseDbWrapper(context).dbRef.child("matchRequests").child(match.id.toString())
+            .setValue(requests)
+    }
+    FirebaseDbWrapper(context).dbRef.child("matches").child(match.id.toString()).setValue(match)
+
+    if(removedUsers != null){
+        for(uid in removedUsers!!.keys){
+            val curr = removedUsers!![uid]
+            curr!!.matches!!.remove(match.id)
+            FirebaseDbWrapper(context).dbRef.child("users").child(uid).setValue(curr)
+        }
+    }
+}
+
+fun acceptMatchRequest(context: Context, matchId: Long) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var match: Match? = null
+    var user: User? = null
+    val uid = FirebaseAuthWrapper(context).getUid()
+
+    GlobalScope.launch {
+        match = getMatch(context, matchId)
+        user = getUser(context)
+        lock.withLock {
+            condition.signal()
+        }
+    }
+    lock.withLock {
+        condition.await()
+    }
+
+    match!!.players!!.add(user!!.username)
+
+    if (user!!.matches == null) {
+        user!!.matches = mutableListOf(matchId)
+    } else {
+        user!!.matches!!.add(matchId)
+    }
+
+    val lock1 = ReentrantLock()
+    val condition1 = lock1.newCondition()
+    var matchRequests: MutableList<String>? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                matchRequests = snapshot.child("matchRequests")
+                    .child(matchId.toString()).value as MutableList<String>
+
+                lock1.withLock {
+                    condition1.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock1.withLock {
+        condition1.await()
+    }
+
+    matchRequests!!.remove(user!!.username)
+    FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
+        .setValue(matchRequests)
+    FirebaseDbWrapper(context).dbRef.child("users").child(uid!!).setValue(user)
+    FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
+
+}
+
+fun declineMatchRequest(context: Context, matchId: Long) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var matchRequests: MutableList<String>? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                matchRequests = snapshot.child("matchRequests")
+                    .child(matchId.toString()).value as MutableList<String>
+
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+
+    val lock1 = ReentrantLock()
+    val condition1 = lock1.newCondition()
+    var user: User? = null
+
+    GlobalScope.launch {
+        user = getUser(context)
+        lock1.withLock {
+            condition1.signal()
+        }
+    }
+    lock1.withLock {
+        condition1.await()
+    }
+
+    matchRequests!!.remove(user!!.username)
+    FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
+        .setValue(matchRequests)
 }
 
 class FirebaseDbWrapper(context: Context) {
