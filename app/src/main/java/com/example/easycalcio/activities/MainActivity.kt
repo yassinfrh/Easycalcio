@@ -14,9 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.easycalcio.fragments.*
-import com.example.easycalcio.models.FirebaseAuthWrapper
-import com.example.easycalcio.models.User
-import com.example.easycalcio.models.getUser
+import com.example.easycalcio.models.*
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
 
@@ -28,6 +26,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (isNotificationWorkerRunning(this)) {
+            runInstantWorker(this)
+            startPeriodicWorker(this)
+        }
 
         val thiz = this
 

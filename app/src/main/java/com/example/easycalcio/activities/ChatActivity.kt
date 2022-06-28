@@ -52,6 +52,10 @@ class ChatActivity : AppCompatActivity() {
 
         messagesListView.adapter = adapter
 
+        GlobalScope.launch {
+            readMessages(this@ChatActivity, chatId)
+        }
+
         val sendButton: FloatingActionButton = findViewById(R.id.chatSendButton)
         sendButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
@@ -63,7 +67,8 @@ class ChatActivity : AppCompatActivity() {
                                 Message(
                                     myUsername,
                                     messageEditText.text.toString(),
-                                    Date()
+                                    Date(),
+                                    false
                                 ), friendUsername, chatId, this@ChatActivity
                             )
                             withContext(Dispatchers.Main) {

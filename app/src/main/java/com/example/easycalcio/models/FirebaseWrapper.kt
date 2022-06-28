@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.easycalcio.activities.RegistrationActivity
 import com.example.easycalcio.activities.SplashActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -73,6 +74,8 @@ class FirebaseAuthWrapper(private val context: Context) {
 
                 val intent = Intent(this.context, RegistrationActivity::class.java)
                 context.startActivity(intent)
+                val activity = context as AppCompatActivity
+                activity.finish()
             } else {
                 // If sign in fails, display a message to the user.
                 Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -93,6 +96,8 @@ class FirebaseAuthWrapper(private val context: Context) {
                     Log.d(TAG, "signInWithEmail:success")
                     val intent = Intent(this.context, SplashActivity::class.java)
                     context.startActivity(intent)
+                    val activity = context as AppCompatActivity
+                    activity.finish()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -396,7 +401,7 @@ fun getReceivedRequests(context: Context): MutableList<User>? {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
                 val children = snapshot.child("friendRequests").children
                 for (child in children) {
-                    val currRequests = child.getValue() as List<String>
+                    val currRequests = child.value as List<String>
                     for (request in currRequests) {
                         if (request == username) {
                             if (list == null) {
@@ -855,9 +860,53 @@ fun sendMessage(message: Message, receiver: String, chatId: Long, context: Conte
         condition.await()
     }
 
-    chat!!.messages.add(message)
+    if(chat!!.messages == null){
+        chat!!.messages = mutableListOf(message)
+    }
+    else{
+        chat!!.messages!!.add(message)
+    }
+
     FirebaseDbWrapper(context).dbRef.child("chats").child(chatId.toString()).setValue(chat)
 
+}
+
+fun readMessages(context: Context, chatId: Long){
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var chat : Chat? = null
+    var user : User? = null
+    GlobalScope.launch {
+        user = getUser(context)
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                chat = snapshot.child("chats").child(chatId.toString()).getValue(Chat::class.java)
+
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock.withLock {
+        condition.await()
+    }
+
+    if(chat!!.messages != null){
+        for(message in chat!!.messages!!){
+            if(message.sender != user!!.username){
+                message.read = true
+            }
+        }
+    }
+
+    FirebaseDbWrapper(context).dbRef.child("chats").child(chatId.toString()).setValue(chat)
 }
 
 fun getChatId(user1: String, user2: String, context: Context): Long {
@@ -1455,6 +1504,61 @@ fun quitMatch(context: Context, matchId: Long) {
 
     FirebaseDbWrapper(context).dbRef.child("users").child(uid!!).setValue(user)
     FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
+}
+
+fun getChats(context: Context) : MutableList<Chat>?{
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var user : User? = null
+
+    GlobalScope.launch {
+        user = getUser(context)
+
+        lock.withLock {
+            condition.signal()
+        }
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    val lock1 = ReentrantLock()
+    val condition1 = lock1.newCondition()
+    var chats : MutableList<Chat>? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                val children = snapshot.child("chats").children
+                for(child in children){
+                    val chat = child.getValue(Chat::class.java)
+                    if(chat!!.user1 == user!!.username || chat.user2 == user!!.username){
+                        if(chats == null){
+                            chats = mutableListOf(chat)
+                        }
+                        else{
+                            chats!!.add(chat)
+                        }
+                    }
+                }
+
+                lock1.withLock {
+                    condition1.signal()
+                }
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+    }
+    lock1.withLock {
+        condition1.await()
+    }
+    return chats
 }
 
 class FirebaseDbWrapper(context: Context) {
