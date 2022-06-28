@@ -1228,7 +1228,7 @@ fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
         condition.await()
     }
 
-    var removedPlayers : MutableList<String>? = null
+    var removedPlayers: MutableList<String>? = null
 
     if (friends == null) {
         removedPlayers = match.players
@@ -1238,10 +1238,9 @@ fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
         for (player in match.players!!) {
             if (!friends.contains(player) && player != currUser!!.username) {
                 match.players!!.remove(player)
-                if(removedPlayers == null){
+                if (removedPlayers == null) {
                     removedPlayers = mutableListOf(player)
-                }
-                else{
+                } else {
                     removedPlayers.add(player)
                 }
             }
@@ -1260,7 +1259,7 @@ fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
     val lock1 = ReentrantLock()
     val condition1 = lock1.newCondition()
     var requests: MutableList<String>? = null
-    var removedUsers : MutableMap<String, User>? = null
+    var removedUsers: MutableMap<String, User>? = null
 
     GlobalScope.launch {
         FirebaseDbWrapper(context).readDbData(object :
@@ -1277,16 +1276,15 @@ fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
                     }
                 }
 
-                if(removedPlayers != null){
+                if (removedPlayers != null) {
                     val children = snapshot.child("users").children
-                    for(child in children){
+                    for (child in children) {
                         val userChild = child.getValue(User::class.java)
-                        for(player in removedPlayers){
-                            if(userChild!!.username == player){
-                                if(removedUsers == null){
+                        for (player in removedPlayers) {
+                            if (userChild!!.username == player) {
+                                if (removedUsers == null) {
                                     removedUsers = mutableMapOf(child.key!! to userChild)
-                                }
-                                else{
+                                } else {
                                     removedUsers!![child.key!!] = userChild
                                 }
                             }
@@ -1315,8 +1313,8 @@ fun editMatch(context: Context, match: Match, friends: MutableList<String>?) {
     }
     FirebaseDbWrapper(context).dbRef.child("matches").child(match.id.toString()).setValue(match)
 
-    if(removedUsers != null){
-        for(uid in removedUsers!!.keys){
+    if (removedUsers != null) {
+        for (uid in removedUsers!!.keys) {
             val curr = removedUsers!![uid]
             curr!!.matches!!.remove(match.id)
             FirebaseDbWrapper(context).dbRef.child("users").child(uid).setValue(curr)
@@ -1360,7 +1358,7 @@ fun acceptMatchRequest(context: Context, matchId: Long) {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
 
                 matchRequests = snapshot.child("matchRequests")
-                    .child(matchId.toString()).value as MutableList<String>
+                    .child(matchId.toString()).value as MutableList<String>?
 
                 lock1.withLock {
                     condition1.signal()
@@ -1376,12 +1374,13 @@ fun acceptMatchRequest(context: Context, matchId: Long) {
         condition1.await()
     }
 
-    matchRequests!!.remove(user!!.username)
-    FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
-        .setValue(matchRequests)
-    FirebaseDbWrapper(context).dbRef.child("users").child(uid!!).setValue(user)
-    FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
-
+    if (matchRequests != null) {
+        matchRequests!!.remove(user!!.username)
+        FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
+            .setValue(matchRequests)
+        FirebaseDbWrapper(context).dbRef.child("users").child(uid!!).setValue(user)
+        FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
+    }
 }
 
 fun declineMatchRequest(context: Context, matchId: Long) {
@@ -1395,7 +1394,7 @@ fun declineMatchRequest(context: Context, matchId: Long) {
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
 
                 matchRequests = snapshot.child("matchRequests")
-                    .child(matchId.toString()).value as MutableList<String>
+                    .child(matchId.toString()).value as MutableList<String>?
 
                 lock.withLock {
                     condition.signal()
@@ -1425,9 +1424,37 @@ fun declineMatchRequest(context: Context, matchId: Long) {
         condition1.await()
     }
 
-    matchRequests!!.remove(user!!.username)
-    FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
-        .setValue(matchRequests)
+    if (matchRequests != null) {
+        matchRequests!!.remove(user!!.username)
+        FirebaseDbWrapper(context).dbRef.child("matchRequests").child(matchId.toString())
+            .setValue(matchRequests)
+    }
+}
+
+fun quitMatch(context: Context, matchId: Long) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var match: Match? = null
+    var user: User? = null
+    val uid = FirebaseAuthWrapper(context).getUid()
+    GlobalScope.launch {
+        match = getMatch(context, matchId)
+        user = getUser(context)
+
+        lock.withLock {
+            condition.signal()
+        }
+    }
+
+    lock.withLock {
+        condition.await()
+    }
+
+    user!!.matches!!.remove(matchId)
+    match!!.players!!.remove(user!!.username)
+
+    FirebaseDbWrapper(context).dbRef.child("users").child(uid!!).setValue(user)
+    FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
 }
 
 class FirebaseDbWrapper(context: Context) {

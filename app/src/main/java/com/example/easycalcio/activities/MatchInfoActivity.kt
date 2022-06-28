@@ -2,6 +2,7 @@ package com.example.easycalcio.activities
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -9,8 +10,9 @@ import android.widget.TextView
 import androidx.fragment.app.commit
 import com.example.easycalcio.R
 import com.example.easycalcio.fragments.MatchPlayersFragment
-import com.example.easycalcio.models.FirebaseAuthWrapper
 import com.example.easycalcio.models.getMatch
+import com.example.easycalcio.models.getUser
+import com.example.easycalcio.models.quitMatch
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -18,7 +20,7 @@ import java.util.*
 
 class MatchInfoActivity : AppCompatActivity() {
 
-    var matchId : Long? = null
+    var matchId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,22 +46,41 @@ class MatchInfoActivity : AppCompatActivity() {
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 when (which) {
                     DialogInterface.BUTTON_POSITIVE -> {
-                        //TODO: quit match
+                        CoroutineScope(Dispatchers.Main + Job()).launch {
+                            withContext(Dispatchers.IO) {
+                                quitMatch(this@MatchInfoActivity, matchId!!)
+                                withContext(Dispatchers.Main) {
+                                    val intent =
+                                        Intent(this@MatchInfoActivity, MainActivity::class.java)
+                                    this@MatchInfoActivity.startActivity(intent)
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        val quitButton : FloatingActionButton = findViewById(R.id.quitMatchButton)
-        quitButton.setOnClickListener(object : View.OnClickListener{
-            override fun onClick(v: View?) {
-                val builder = AlertDialog.Builder(this@MatchInfoActivity)
-                builder.setMessage("Are you sure you wanna quit the match?")
-                    .setPositiveButton("Yes", dialogClickListener)
-                    .setNegativeButton("No", dialogClickListener).show()
-            }
+        val quitButton: FloatingActionButton = findViewById(R.id.quitMatchButton)
 
-        })
+        CoroutineScope(Dispatchers.Main + Job()).launch {
+            withContext(Dispatchers.IO) {
+                val user = getUser(this@MatchInfoActivity)
+                withContext(Dispatchers.Main) {
+                    if (user.matches!!.contains(matchId)) {
+                        quitButton.visibility = View.VISIBLE
+                        quitButton.setOnClickListener(object : View.OnClickListener {
+                            override fun onClick(v: View?) {
+                                val builder = AlertDialog.Builder(this@MatchInfoActivity)
+                                builder.setMessage("Are you sure you wanna quit the match?")
+                                    .setPositiveButton("Yes", dialogClickListener)
+                                    .setNegativeButton("No", dialogClickListener).show()
+                            }
+                        })
+                    }
+                }
+            }
+        }
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {

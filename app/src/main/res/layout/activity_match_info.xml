@@ -170,6 +170,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="20sp"
         android:clickable="true"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_match_delete" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
