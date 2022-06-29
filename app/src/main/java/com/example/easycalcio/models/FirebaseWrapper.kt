@@ -1246,7 +1246,7 @@ fun removeMatch(context: Context, matchId: Long) {
                     val user = child.getValue(User::class.java)
                     if (user!!.matches!!.contains(matchId)) {
                         user.matches!!.remove(matchId)
-                        FirebaseDbWrapper(context).writeUser(user)
+                        replaceUser(context, user.username, user)
                     }
                 }
 
@@ -1564,6 +1564,45 @@ fun getChats(context: Context): MutableList<Chat>? {
     return chats
 }
 
+fun replaceUser(context: Context, oldUsername: String, user: User) {
+    val lock = ReentrantLock()
+    val condition = lock.newCondition()
+    var oldUserUid: String? = null
+
+    GlobalScope.launch {
+        FirebaseDbWrapper(context).readDbData(object :
+            FirebaseDbWrapper.Companion.FirebaseReadCallback {
+            override fun onDataChangeCallback(snapshot: DataSnapshot) {
+
+                val children = snapshot.child("users").children
+                for(child in children){
+                    val curr = child.getValue(User::class.java)
+                    if(curr!!.username == oldUsername){
+                        oldUserUid = child.key
+                        break
+                    }
+                }
+
+                lock.withLock {
+                    condition.signal()
+                }
+
+            }
+
+            override fun onCancelledCallback(error: DatabaseError) {
+            }
+
+        })
+
+    }
+    lock.withLock {
+        condition.await()
+    }
+
+    FirebaseDbWrapper(context).dbRef.child("users").child(oldUserUid!!).setValue(user)
+
+}
+
 class FirebaseDbWrapper(context: Context) {
 
     private val db =
@@ -1628,7 +1667,7 @@ class FirebaseStorageWrapper {
                 lock.withLock {
                     condition.signal()
                 }
-            }.addOnFailureListener{
+            }.addOnFailureListener {
                 lock.withLock {
                     condition.signal()
                 }
@@ -1640,7 +1679,7 @@ class FirebaseStorageWrapper {
         return image
     }
 
-    fun delete(name: String){
+    fun delete(name: String) {
         storageRef.child("images/${name}.jpg").delete()
     }
 

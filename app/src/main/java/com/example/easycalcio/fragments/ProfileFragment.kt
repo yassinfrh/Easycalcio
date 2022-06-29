@@ -216,6 +216,16 @@ class ProfileFragment : Fragment() {
                     user!!.role = roleSpinner.selectedItem.toString()
 
                     FirebaseDbWrapper(requireContext()).writeUser(user!!)
+                    if(user!!.friends != null){
+                        for(friend in user!!.friends!!){
+                            GlobalScope.launch {
+                                val friendUser = getUserWithUsername(view!!.context, friend)
+                                friendUser.friends!!.remove(oldUsername!!)
+                                friendUser.friends!!.add(currentUsername!!)
+                                replaceUser(requireContext(), friend, friendUser)
+                            }
+                        }
+                    }
                     if(image != null){
                         FirebaseStorageWrapper().delete(oldUsername!!)
                         FirebaseStorageWrapper().upload(image!!, currentUsername!!)
