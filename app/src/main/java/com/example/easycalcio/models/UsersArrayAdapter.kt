@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.easycalcio.R
 import com.example.easycalcio.activities.EditMatchActivity
@@ -21,8 +22,6 @@ class UsersArrayAdapter(context: Context, val resource: Int, val users: List<Use
             view = LayoutInflater.from(context).inflate(R.layout.friend_layout, parent, false)
         }
 
-        //TODO: replace profile picture
-
         val friendName: TextView = view!!.findViewById(R.id.friendName)
         friendName.text = "${user.name} ${user.surname}"
 
@@ -31,6 +30,18 @@ class UsersArrayAdapter(context: Context, val resource: Int, val users: List<Use
 
         val friendRole: TextView = view.findViewById(R.id.friendRole)
         friendRole.text = user.role
+
+        val profileImage : ImageView = view.findViewById(R.id.profileImage)
+        CoroutineScope(Dispatchers.Main + Job()).launch {
+            withContext(Dispatchers.IO) {
+                val image = FirebaseStorageWrapper().download(user.username.lowercase())
+                withContext(Dispatchers.Main) {
+                    if(image != null){
+                        profileImage.setImageURI(image)
+                    }
+                }
+            }
+        }
 
         val activity = view.context
         if (activity is EditMatchActivity) {

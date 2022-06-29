@@ -1,10 +1,12 @@
 package com.example.easycalcio.activities
 
 import android.content.Intent
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.easycalcio.R
 import com.example.easycalcio.models.*
@@ -31,6 +33,7 @@ class FriendProfileActivity : AppCompatActivity() {
 
         val addFriendButton: Button = findViewById(R.id.friendProfileAddRemoveFriendButton)
         val chatButton : Button = findViewById(R.id.friendProfileChatButton)
+        val profileImage : ImageView = findViewById(R.id.profileImage)
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
@@ -38,6 +41,7 @@ class FriendProfileActivity : AppCompatActivity() {
                 val currUser = getUser(this@FriendProfileActivity)
                 myUsername = currUser.username
                 chatId = getChatId(myUsername!!, user.username, this@FriendProfileActivity)
+                val image = FirebaseStorageWrapper().download(user.username.lowercase())
                 withContext(Dispatchers.Main) {
                     usernameView.text = user.username
                     nameView.text = user.name
@@ -49,6 +53,9 @@ class FriendProfileActivity : AppCompatActivity() {
                         addFriendButton.text = getString(R.string.friend_profile_remove_friend)
                     }
                     chatButton.isEnabled = true
+                    if(image != null){
+                        profileImage.setImageURI(image)
+                    }
                 }
             }
         }

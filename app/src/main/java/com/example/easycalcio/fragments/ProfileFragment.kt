@@ -1,18 +1,21 @@
 package com.example.easycalcio.fragments
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.easycalcio.R
-import com.example.easycalcio.models.FirebaseDbWrapper
-import com.example.easycalcio.models.User
-import com.example.easycalcio.models.alreadyUsedUsername
-import com.example.easycalcio.models.getUser
+import com.example.easycalcio.activities.MainActivity
+import com.example.easycalcio.models.*
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -26,6 +29,9 @@ class ProfileFragment : Fragment() {
     private val myCalendar: Calendar = Calendar.getInstance()
     private val roles =
         arrayOf("Goalkeeper", "Center back", "Full back", "Center midfielder", "Wing", "Striker")
+    private var profileImage : ImageView? = null
+    var currentUsername : String? = null
+    var image : Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +52,7 @@ class ProfileFragment : Fragment() {
         val profileSurname: EditText = requireView().findViewById(R.id.profileSurname)
         val profileBirthday: EditText = requireView().findViewById(R.id.profileBirthday)
         val profileCity: EditText = requireView().findViewById(R.id.profileCity)
+        profileImage = requireView().findViewById(R.id.profileImage)
 
         val views =
             arrayOf(profileUsername, profileName, profileSurname, profileBirthday, profileCity)
@@ -62,13 +69,12 @@ class ProfileFragment : Fragment() {
         roleSpinner.isClickable = false
 
         var user: User? = null
-        var currentUsername = ""
 
-        //TODO: show profile picture
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 user = getUser(requireContext())
+                image = FirebaseStorageWrapper().download(user!!.username.lowercase())
 
                 withContext(Dispatchers.Main) {
                     profileUsername.setText(user!!.username)
@@ -78,6 +84,9 @@ class ProfileFragment : Fragment() {
                     profileCity.setText(user!!.city)
                     roleSpinner.setSelection(roles.indexOf(user!!.role) + 1)
                     currentUsername = user!!.username.lowercase()
+                    if(image != null){
+                        profileImage!!.setImageURI(image)
+                    }
                 }
             }
         }
@@ -105,8 +114,6 @@ class ProfileFragment : Fragment() {
                 }
             }
         })
-
-        //TODO: edit profile picture
 
         var usernameErr = false
 
@@ -145,6 +152,18 @@ class ProfileFragment : Fragment() {
                 if (edit) {
                     profileButton.setImageResource(android.R.drawable.ic_menu_save)
                     profileChangePictureButton.visibility = Button.VISIBLE
+
+                    profileChangePictureButton.setOnClickListener(object : View.OnClickListener{
+                        override fun onClick(v: View?) {
+                            ImagePicker.with(this@ProfileFragment)
+                                .crop()	    			//Crop image(Optional), Check Customization for more option
+                                .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                                .maxResultSize(500, 500)	//Final image resolution will be less than 1080 x 1080(Optional)
+                                .start()
+                        }
+
+                    })
+
                     for (v in views) {
                         if (v != profileBirthday) {
                             v.isClickable = true
@@ -184,6 +203,7 @@ class ProfileFragment : Fragment() {
                     profileButton.setImageResource(android.R.drawable.ic_menu_edit)
                     profileChangePictureButton.visibility = Button.GONE
 
+                    val oldUsername = currentUsername
                     currentUsername = profileUsername.text.toString()
 
                     val formatter = SimpleDateFormat("yyyy/MM/dd")
@@ -196,12 +216,37 @@ class ProfileFragment : Fragment() {
                     user!!.role = roleSpinner.selectedItem.toString()
 
                     FirebaseDbWrapper(requireContext()).writeUser(user!!)
-
+                    if(image != null){
+                        FirebaseStorageWrapper().delete(oldUsername!!)
+                        FirebaseStorageWrapper().upload(image!!, currentUsername!!)
+                    }
+                    val activity = requireActivity() as AppCompatActivity
+                    activity.finish()
+                    activity.startActivity(activity.intent)
                 }
 
             }
 
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (resultCode) {
+            Activity.RESULT_OK -> {
+                //Image Uri will not be null for RESULT_OK
+                image = data?.data!!
+
+                // Use Uri object instead of File to avoid storage permissions
+                profileImage!!.setImageURI(image)
+            }
+            ImagePicker.RESULT_ERROR -> {
+                Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                Toast.makeText(requireContext(), "Task Cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
 }

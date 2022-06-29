@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     private var drawer: DrawerLayout? = null
     var user: User? = null
+    var headerUsername: TextView? = null
+    var headerProfileImage: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +35,6 @@ class MainActivity : AppCompatActivity() {
             startPeriodicWorker(this)
         }
 
-        val thiz = this
-
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -42,14 +43,18 @@ class MainActivity : AppCompatActivity() {
         val navigationView: NavigationView = findViewById(R.id.nav_view)
 
         val header = navigationView.getHeaderView(0)
-        val headerUsername: TextView = header.findViewById(R.id.nav_username)
+        headerUsername = header.findViewById(R.id.nav_username)
+        headerProfileImage = header.findViewById(R.id.profileImage)
 
         CoroutineScope(Dispatchers.Main + Job()).launch {
             withContext(Dispatchers.IO) {
                 user = getUser(this@MainActivity)
+                val image = FirebaseStorageWrapper().download(user!!.username.lowercase())
                 withContext(Dispatchers.Main) {
-                    headerUsername.text = user!!.username
-                    //TODO: set header profile picture
+                    headerUsername!!.text = user!!.username
+                    if (image != null) {
+                        headerProfileImage!!.setImageURI(image)
+                    }
                 }
             }
         }
@@ -58,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 when (which) {
                     DialogInterface.BUTTON_POSITIVE -> {
-                        FirebaseAuthWrapper(thiz).signOut()
+                        FirebaseAuthWrapper(this@MainActivity).signOut()
                         finish()
                     }
                 }
@@ -118,4 +123,7 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+
+
 }

@@ -69,7 +69,16 @@ class FriendRequestsArrayAdapter(context: Context, val resource: Int, val users:
             }
 
         })
-        //TODO: replace profile picture
+        CoroutineScope(Dispatchers.Main + Job()).launch {
+            withContext(Dispatchers.IO) {
+                val image = FirebaseStorageWrapper().download(user.username.lowercase())
+                withContext(Dispatchers.Main) {
+                    if(image != null){
+                        profilePicture.setImageURI(image)
+                    }
+                }
+            }
+        }
 
         return view
     }

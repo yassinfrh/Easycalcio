@@ -2,6 +2,7 @@ package com.example.easycalcio.models
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,8 +16,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -860,10 +865,9 @@ fun sendMessage(message: Message, receiver: String, chatId: Long, context: Conte
         condition.await()
     }
 
-    if(chat!!.messages == null){
+    if (chat!!.messages == null) {
         chat!!.messages = mutableListOf(message)
-    }
-    else{
+    } else {
         chat!!.messages!!.add(message)
     }
 
@@ -871,11 +875,11 @@ fun sendMessage(message: Message, receiver: String, chatId: Long, context: Conte
 
 }
 
-fun readMessages(context: Context, chatId: Long){
+fun readMessages(context: Context, chatId: Long) {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var chat : Chat? = null
-    var user : User? = null
+    var chat: Chat? = null
+    var user: User? = null
     GlobalScope.launch {
         user = getUser(context)
         FirebaseDbWrapper(context).readDbData(object :
@@ -898,9 +902,9 @@ fun readMessages(context: Context, chatId: Long){
         condition.await()
     }
 
-    if(chat!!.messages != null){
-        for(message in chat!!.messages!!){
-            if(message.sender != user!!.username){
+    if (chat!!.messages != null) {
+        for (message in chat!!.messages!!) {
+            if (message.sender != user!!.username) {
                 message.read = true
             }
         }
@@ -1506,10 +1510,10 @@ fun quitMatch(context: Context, matchId: Long) {
     FirebaseDbWrapper(context).dbRef.child("matches").child(matchId.toString()).setValue(match)
 }
 
-fun getChats(context: Context) : MutableList<Chat>?{
+fun getChats(context: Context): MutableList<Chat>? {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
-    var user : User? = null
+    var user: User? = null
 
     GlobalScope.launch {
         user = getUser(context)
@@ -1525,7 +1529,7 @@ fun getChats(context: Context) : MutableList<Chat>?{
 
     val lock1 = ReentrantLock()
     val condition1 = lock1.newCondition()
-    var chats : MutableList<Chat>? = null
+    var chats: MutableList<Chat>? = null
 
     GlobalScope.launch {
         FirebaseDbWrapper(context).readDbData(object :
@@ -1533,13 +1537,12 @@ fun getChats(context: Context) : MutableList<Chat>?{
             override fun onDataChangeCallback(snapshot: DataSnapshot) {
 
                 val children = snapshot.child("chats").children
-                for(child in children){
+                for (child in children) {
                     val chat = child.getValue(Chat::class.java)
-                    if(chat!!.user1 == user!!.username || chat.user2 == user!!.username){
-                        if(chats == null){
+                    if (chat!!.user1 == user!!.username || chat.user2 == user!!.username) {
+                        if (chats == null) {
                             chats = mutableListOf(chat)
-                        }
-                        else{
+                        } else {
                             chats!!.add(chat)
                         }
                     }
@@ -1599,6 +1602,46 @@ class FirebaseDbWrapper(context: Context) {
             fun onDataChangeCallback(snapshot: DataSnapshot);
             fun onCancelledCallback(error: DatabaseError);
         }
+    }
+
+}
+
+class FirebaseStorageWrapper {
+    private val storage = FirebaseStorage.getInstance()
+    private val storageRef = storage.reference
+
+    fun upload(image: Uri, name: String) {
+        storageRef.child("images/${name}.jpg").putFile(image)
+    }
+
+    fun download(name: String): Uri? {
+        val tmp = File.createTempFile(name, "jpg")
+        var image: Uri? = null
+
+        val lock = ReentrantLock()
+        val condition = lock.newCondition()
+
+
+        GlobalScope.launch {
+            storageRef.child("images/${name}.jpg").getFile(tmp).addOnSuccessListener {
+                image = Uri.fromFile(tmp)
+                lock.withLock {
+                    condition.signal()
+                }
+            }.addOnFailureListener{
+                lock.withLock {
+                    condition.signal()
+                }
+            }
+        }
+        lock.withLock {
+            condition.await()
+        }
+        return image
+    }
+
+    fun delete(name: String){
+        storageRef.child("images/${name}.jpg").delete()
     }
 
 }
