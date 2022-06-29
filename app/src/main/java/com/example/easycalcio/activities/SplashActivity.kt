@@ -3,6 +3,7 @@ package com.example.easycalcio.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.easycalcio.R
 import com.example.easycalcio.models.FirebaseAuthWrapper
 import kotlinx.coroutines.GlobalScope
@@ -12,11 +13,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
-        /*val tmp = Intent(this, MainActivity::class.java)
-        this.startActivity(tmp)
-        finish()
-        return*/
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // Check if user is logged or not
         val firebaseAuthWrapper = FirebaseAuthWrapper(this)
