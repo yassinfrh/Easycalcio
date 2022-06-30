@@ -29,9 +29,9 @@ class ProfileFragment : Fragment() {
     private val myCalendar: Calendar = Calendar.getInstance()
     private val roles =
         arrayOf("Goalkeeper", "Center back", "Full back", "Center midfielder", "Wing", "Striker")
-    private var profileImage : ImageView? = null
-    var currentUsername : String? = null
-    var image : Uri? = null
+    private var profileImage: ImageView? = null
+    var currentUsername: String? = null
+    var image: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,7 +84,7 @@ class ProfileFragment : Fragment() {
                     profileCity.setText(user!!.city)
                     roleSpinner.setSelection(roles.indexOf(user!!.role) + 1)
                     currentUsername = user!!.username.lowercase()
-                    if(image != null){
+                    if (image != null) {
                         profileImage!!.setImageURI(image)
                     }
                 }
@@ -153,12 +153,15 @@ class ProfileFragment : Fragment() {
                     profileButton.setImageResource(android.R.drawable.ic_menu_save)
                     profileChangePictureButton.visibility = Button.VISIBLE
 
-                    profileChangePictureButton.setOnClickListener(object : View.OnClickListener{
+                    profileChangePictureButton.setOnClickListener(object : View.OnClickListener {
                         override fun onClick(v: View?) {
                             ImagePicker.with(this@ProfileFragment)
-                                .crop()	    			//Crop image(Optional), Check Customization for more option
-                                .compress(1024)			//Final image size will be less than 1 MB(Optional)
-                                .maxResultSize(500, 500)	//Final image resolution will be less than 1080 x 1080(Optional)
+                                .crop()                    //Crop image(Optional), Check Customization for more option
+                                .compress(1024)            //Final image size will be less than 1 MB(Optional)
+                                .maxResultSize(
+                                    500,
+                                    500
+                                )    //Final image resolution will be less than 1080 x 1080(Optional)
                                 .start()
                         }
 
@@ -216,8 +219,8 @@ class ProfileFragment : Fragment() {
                     user!!.role = roleSpinner.selectedItem.toString()
 
                     FirebaseDbWrapper(requireContext()).writeUser(user!!)
-                    if(user!!.friends != null){
-                        for(friend in user!!.friends!!){
+                    if (user!!.friends != null) {
+                        for (friend in user!!.friends!!) {
                             GlobalScope.launch {
                                 val friendUser = getUserWithUsername(view!!.context, friend)
                                 friendUser.friends!!.remove(oldUsername!!)
@@ -226,7 +229,29 @@ class ProfileFragment : Fragment() {
                             }
                         }
                     }
-                    if(image != null){
+
+                    if (user!!.matches != null) {
+                        for (matchId in user!!.matches!!) {
+                            GlobalScope.launch {
+                                val match = getMatch(requireContext(), matchId)
+                                if(match.username == oldUsername){
+                                    match.username = currentUsername!!
+                                }
+                                match.players!!.remove(oldUsername)
+                                match.players!!.add(currentUsername!!)
+                                FirebaseDbWrapper(requireContext()).dbRef.child("matches")
+                                    .child(matchId.toString()).setValue(match)
+                            }
+                        }
+                    }
+
+                    GlobalScope.launch {
+                        replaceUsernameInMatchRequests(requireContext(), oldUsername!!, currentUsername!!)
+                        replaceUsernameInFriendRequests(requireContext(), oldUsername, currentUsername!!)
+                        replaceUsernameInChats(requireContext(), oldUsername, currentUsername!!)
+                    }
+
+                    if (image != null) {
                         FirebaseStorageWrapper().delete(oldUsername!!)
                         FirebaseStorageWrapper().upload(image!!, currentUsername!!)
                     }
@@ -251,7 +276,8 @@ class ProfileFragment : Fragment() {
                 profileImage!!.setImageURI(image)
             }
             ImagePicker.RESULT_ERROR -> {
-                Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT)
+                    .show()
             }
             else -> {
                 Toast.makeText(requireContext(), "Task Cancelled", Toast.LENGTH_SHORT).show()

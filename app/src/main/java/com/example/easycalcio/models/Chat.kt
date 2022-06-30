@@ -7,6 +7,7 @@ class Chat() {
     var messages: MutableList<Message>? = mutableListOf()
 
     constructor(id: Long, user1: String, user2: String, messages: MutableList<Message>?) : this() {
+        this.id = id
         this.user1 = user1
         this.user2 = user2
         this.messages = messages
