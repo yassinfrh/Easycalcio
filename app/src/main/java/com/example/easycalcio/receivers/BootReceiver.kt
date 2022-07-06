@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.easycalcio.models.runInstantWorker
-import com.example.easycalcio.models.startPeriodicWorker
 
 class BootReceiver : BroadcastReceiver() {
 
@@ -12,6 +11,5 @@ class BootReceiver : BroadcastReceiver() {
 
         // Start the service
         runInstantWorker(context)
-        startPeriodicWorker(context)
     }
 }
