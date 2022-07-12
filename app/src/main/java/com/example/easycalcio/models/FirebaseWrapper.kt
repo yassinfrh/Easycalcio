@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.easycalcio.activities.MainActivity
 import com.example.easycalcio.activities.RegistrationActivity
 import com.example.easycalcio.activities.SplashActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +18,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.OnProgressListener
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.GlobalScope
@@ -1234,6 +1236,7 @@ fun getMatch(context: Context, matchId: Long): Match {
 fun removeMatch(context: Context, matchId: Long) {
     val lock = ReentrantLock()
     val condition = lock.newCondition()
+    var modifiedUsers : MutableList<User>? = null
 
     GlobalScope.launch {
         FirebaseDbWrapper(context).readDbData(object :
@@ -1247,7 +1250,12 @@ fun removeMatch(context: Context, matchId: Long) {
                     val user = child.getValue(User::class.java)
                     if (user!!.matches!!.contains(matchId)) {
                         user.matches!!.remove(matchId)
-                        replaceUser(context, user.username, user)
+                        if(modifiedUsers == null){
+                            modifiedUsers = mutableListOf(user)
+                        }
+                        else{
+                            modifiedUsers!!.add(user)
+                        }
                     }
                 }
 
@@ -1263,6 +1271,14 @@ fun removeMatch(context: Context, matchId: Long) {
     }
     lock.withLock {
         condition.await()
+    }
+
+    if(modifiedUsers != null){
+        for(user in modifiedUsers!!){
+            GlobalScope.launch {
+                replaceUser(context, user.username, user)
+            }
+        }
     }
 }
 
@@ -1802,8 +1818,11 @@ class FirebaseStorageWrapper {
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.reference
 
-    fun upload(image: Uri, name: String) {
-        storageRef.child("images/${name}.jpg").putFile(image)
+    fun upload(image: Uri, name: String, context: Context) {
+        storageRef.child("images/${name}.jpg").putFile(image).addOnSuccessListener {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        }
     }
 
     fun download(name: String): Uri? {

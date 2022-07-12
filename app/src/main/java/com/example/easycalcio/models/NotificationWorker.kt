@@ -46,7 +46,7 @@ fun startWorker(context: Context) {
         })
     }
     GlobalScope.launch {
-        dbRef.child("friendRequests").addValueEventListener(object : ValueEventListener {
+        dbRef.child("matchRequests").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val matchRequestNotificationWorker = OneTimeWorkRequestBuilder<MatchRequestNotificationWorker>().build()
                 WorkManager.getInstance(context).enqueue(matchRequestNotificationWorker)

@@ -3,6 +3,8 @@ package com.example.easycalcio.activities
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
@@ -64,29 +66,32 @@ class RegistrationActivity : AppCompatActivity() {
         var usernameErr = false
 
         val usernameEditText: EditText = findViewById(R.id.registrationUsername)
-        usernameEditText.onFocusChangeListener = object : View.OnFocusChangeListener {
-            override fun onFocusChange(view: View?, hasFocus: Boolean) {
-                Log.d("username", "focus changed")
+        usernameEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 usernameErr = false
-                if (!hasFocus) {
-                    CoroutineScope(Dispatchers.Main + Job()).launch {
-                        withContext(Dispatchers.IO) {
-                            val used = alreadyUsedUsername(
-                                view!!.context,
-                                usernameEditText.text.toString()
-                            )
-                            withContext(Dispatchers.Main) {
-                                if (used) {
-                                    usernameErr = true
-                                    usernameEditText.error = "Already used username"
-                                }
+                CoroutineScope(Dispatchers.Main + Job()).launch {
+                    withContext(Dispatchers.IO) {
+                        val used = alreadyUsedUsername(
+                            this@RegistrationActivity,
+                            usernameEditText.text.toString()
+                        )
+                        withContext(Dispatchers.Main) {
+                            if (used) {
+                                usernameErr = true
+                                usernameEditText.error = "Already used username"
                             }
                         }
                     }
                 }
             }
 
-        }
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
 
         var err: Boolean
         val nextButton: FloatingActionButton = findViewById(R.id.nextButton)

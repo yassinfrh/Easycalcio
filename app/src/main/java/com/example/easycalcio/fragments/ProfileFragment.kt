@@ -5,6 +5,8 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -117,29 +119,34 @@ class ProfileFragment : Fragment() {
 
         var usernameErr = false
 
-        profileUsername.onFocusChangeListener = object : View.OnFocusChangeListener {
-            override fun onFocusChange(view: View?, hasFocus: Boolean) {
+        profileUsername.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 usernameErr = false
-                if (!hasFocus) {
-                    val newUsername = profileUsername.text.toString().lowercase()
-                    CoroutineScope(Dispatchers.Main + Job()).launch {
-                        withContext(Dispatchers.IO) {
-                            val used = alreadyUsedUsername(
-                                view!!.context,
-                                newUsername
-                            )
-                            withContext(Dispatchers.Main) {
-                                if (used && newUsername != currentUsername) {
-                                    usernameErr = true
-                                    profileUsername.error = "Already used username"
-                                }
+                val newUsername = profileUsername.text.toString().lowercase()
+                CoroutineScope(Dispatchers.Main + Job()).launch {
+                    withContext(Dispatchers.IO) {
+                        val used = alreadyUsedUsername(
+                            view!!.context,
+                            newUsername
+                        )
+                        withContext(Dispatchers.Main) {
+                            if (used && newUsername != currentUsername) {
+                                usernameErr = true
+                                profileUsername.error = "Already used username"
                             }
                         }
                     }
                 }
             }
 
-        }
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
 
         val profileButton: FloatingActionButton =
             requireView().findViewById(R.id.profileEditSaveButton)
@@ -253,11 +260,12 @@ class ProfileFragment : Fragment() {
 
                     if (image != null) {
                         FirebaseStorageWrapper().delete(oldUsername!!)
-                        FirebaseStorageWrapper().upload(image!!, currentUsername!!)
+                        FirebaseStorageWrapper().upload(image!!, currentUsername!!, requireContext())
+                        val progressBar : RelativeLayout = requireView().findViewById(R.id.loadingPanel)
+                        progressBar.visibility = View.VISIBLE
+                        profileButton.isEnabled = false
                     }
-                    val activity = requireActivity() as AppCompatActivity
-                    activity.finish()
-                    activity.startActivity(activity.intent)
+
                 }
 
             }
